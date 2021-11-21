@@ -19,6 +19,17 @@ define("juniormax/tests/unit/controllers/aplication-test", ["qunit", "ember-quni
     });
   });
 });
+define("juniormax/tests/unit/routes/books-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | books', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:books');
+      assert.ok(route);
+    });
+  });
+});
 define("juniormax/tests/unit/routes/index-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
   "use strict";
 
@@ -26,6 +37,28 @@ define("juniormax/tests/unit/routes/index-test", ["qunit", "ember-qunit"], funct
     (0, _emberQunit.setupTest)(hooks);
     (0, _qunit.test)('it exists', function (assert) {
       let route = this.owner.lookup('route:index');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/meetings-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | meetings', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:meetings');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/speakers-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | speakers', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:speakers');
       assert.ok(route);
     });
   });

@@ -21,13 +21,11 @@ module.exports = function (defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
-   let extraAssets = new Funnel('node_modules/jquery/dist',{
+  let extraAssets = new Funnel('node_modules/jquery/dist', {
     srcDir: '/',
     include: ['jquery.min.js'],
-    destDir: '/assets'
+    destDir: '/assets',
   });
-
-
 
   return app.toTree(extraAssets);
 };
