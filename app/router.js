@@ -10,6 +10,8 @@ Router.map(function () {
   this.route('meetings');
   this.route('speakers');
   this.route('books');
+  this.route('author');
+  this.route('404', {path: '*path'});
 });
 
 export default Router;

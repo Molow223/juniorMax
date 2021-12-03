@@ -1135,6 +1135,26 @@
     }
   });
 });
+;define("juniormax/helpers/get-author", ["exports", "@ember/component/helper", "@ember/string"], function (_exports, _helper, _string) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+  _exports.getAuthor = getAuthor;
+
+  function getAuthor(positional
+  /*, named*/
+  ) {
+    let [firstName, lastName] = positional;
+    return `${lastName} ${firstName}`;
+  }
+
+  var _default = (0, _helper.helper)(getAuthor);
+
+  _exports.default = _default;
+});
 ;define("juniormax/helpers/on-document", ["exports", "ember-on-helper/helpers/on-document"], function (_exports, _onDocument) {
   "use strict";
 
@@ -1532,8 +1552,55 @@
     this.route('meetings');
     this.route('speakers');
     this.route('books');
+    this.route('author');
+    this.route('404', {
+      path: '*path'
+    });
   });
   var _default = Router;
+  _exports.default = _default;
+});
+;define("juniormax/routes/404", ["exports", "@ember/routing/route"], function (_exports, _route) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  class W404Route extends _route.default {}
+
+  _exports.default = W404Route;
+});
+;define("juniormax/routes/author", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  //import { Promise } from 'rsvp';
+  //import { later } from '@ember runloop';
+  var _default = _route.default.extend({
+    dataService: (0, _service.inject)('data'),
+
+    model() {
+      return this.dataService.getAuthorsData();
+      /*return new Promise((resolve) => {
+        later(async () => {
+          try {
+            let authors = await this.dataService.getAuthorsData();
+            resolve(authors);
+          } catch (e) {
+            reject('Connection failed');
+          }
+        }, 3000);
+      });*/
+    }
+
+  });
+
   _exports.default = _default;
 });
 ;define("juniormax/routes/books", ["exports", "@ember/routing/route"], function (_exports, _route) {
@@ -1636,6 +1703,23 @@
     }
   });
 });
+;define("juniormax/services/data", ["exports", "@ember/service"], function (_exports, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  class DataService extends _service.default {
+    getAuthorsData() {
+      return fetch('http://localhost:3000/authors').then(response => response.json());
+    }
+
+  }
+
+  _exports.default = DataService;
+});
 ;define("juniormax/services/page-title-list", ["exports", "ember-page-title/services/page-title-list"], function (_exports, _pageTitleList) {
   "use strict";
 
@@ -1675,6 +1759,23 @@
     }
   });
 });
+;define("juniormax/templates/404", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "7aGnEIQl",
+    "block": "[[[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \"],[10,\"img\"],[14,\"src\",\"/404_1.gif\"],[14,\"alt\",\"404\"],[12],[13],[1,\"\\n\"],[13]],[],false,[]]",
+    "moduleName": "juniormax/templates/404.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/templates/application", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
   "use strict";
 
@@ -1684,9 +1785,26 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "UvyJCYW9",
-    "block": "[[[10,\"head\"],[12],[1,\"\\n\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"assets/styles.css\"],[12],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\\t\\t\"],[10,3],[14,0,\"navbar-brand\"],[14,6,\"index.html\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"index.html\"],[12],[1,\"Рабочий стол \"],[10,1],[14,0,\"sr-only\"],[12],[1,\"(текущий)\"],[13],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"meetings.html\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"books.html\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"speakers.html\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link text-success\"],[14,6,\"#\"],[12],[1,\"Оставить заявку\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link text-primary\"],[14,6,\"#\"],[12],[1,\"Запланировать\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\"],[46,[28,[37,1],null,null],null,null,null],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2021\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13],[1,\"\\n\"]],[],false,[\"component\",\"-outlet\"]]",
+    "id": "DwlDGbf+",
+    "block": "[[[10,\"head\"],[12],[1,\"\\n\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"assets/styles.css\"],[12],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\\t\\t\"],[10,3],[14,0,\"navbar-brand\"],[14,6,\"index\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"index\"],[12],[1,\"Рабочий стол \"],[10,1],[14,0,\"sr-only\"],[12],[1,\"(текущий)\"],[13],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"meetings\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"books\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"speakers\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link text-success\"],[14,6,\"#\"],[12],[1,\"Оставить заявку\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link text-primary\"],[14,6,\"#\"],[12],[1,\"Запланировать\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\"],[46,[28,[37,1],null,null],null,null,null],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2021\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13],[1,\"\\n\"]],[],false,[\"component\",\"-outlet\"]]",
     "moduleName": "juniormax/templates/application.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/author", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "XGzn4PcP",
+    "block": "[[[10,0],[14,0,\"panel-heading\"],[14,5,\"margin-top: 200px;\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"search\"],[12],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Search by Author Name\",[33,1]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,3],[14,6,\"\"],[14,0,\"btn-new\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"sr-only\"],[12],[1,\"Add new Author\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,0],[14,0,\"panel-content\"],[12],[1,\"\\n    \"],[10,\"h3\"],[14,0,\"panel-title\"],[12],[1,\"Authors\"],[13],[1,\"\\n    \"],[10,\"ul\"],[14,0,\"collection\"],[12],[1,\"\\n\"],[42,[28,[37,3],[[28,[37,3],[[33,4]],null]],null],null,[[[1,\"            \"],[10,\"li\"],[12],[1,\"\\n                \"],[10,3],[14,6,\"\"],[12],[1,\"\\n                    \"],[1,[28,[35,5],[[30,1,[\"firstName\"]],[30,1,[\"lastName\"]]],null]],[1,\"\\n                \"],[13],[1,\"\\n            \"],[13],[1,\"\\n\"]],[1]],null],[1,\"    \"],[13],[1,\"\\n\"],[13]],[\"author\"],false,[\"input\",\"search\",\"each\",\"-track-array\",\"model\",\"get-author\"]]",
+    "moduleName": "juniormax/templates/author.hbs",
     "isStrictMode": false
   });
 
@@ -1735,6 +1853,23 @@
     }
   });
 });
+;define("juniormax/templates/error", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "JB4kQjAK",
+    "block": "[[[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \"],[10,\"img\"],[14,\"src\",\"/error.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n\"],[13]],[],false,[]]",
+    "moduleName": "juniormax/templates/error.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/templates/index", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
   "use strict";
 
@@ -1744,9 +1879,26 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "V6+ISGcu",
-    "block": "[[[10,0],[14,0,\"row align-items-center h-100 home-page-nav\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"meetings.html\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-people desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1h7.956a.274.274 0 0 0 .014-.002l.008-.002c-.002-.264-.167-1.03-.76-1.72C13.688 10.629 12.718 10 11 10c-1.717 0-2.687.63-3.24 1.276-.593.69-.759 1.457-.76 1.72a1.05 1.05 0 0 0 .022.004zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10c-1.668.02-2.615.64-3.16 1.276C1.163 11.97 1 12.739 1 13h3c0-1.045.323-2.086.92-3zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"books.html\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-book desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1 2.828v9.923c.918-.35 2.107-.692 3.287-.81 1.094-.111 2.278-.039 3.213.492V2.687c-.654-.689-1.782-.886-3.112-.752-1.234.124-2.503.523-3.388.893zm7.5-.141v9.746c.935-.53 2.12-.603 3.213-.493 1.18.12 2.37.461 3.287.811V2.828c-.885-.37-2.154-.769-3.388-.893-1.33-.134-2.458.063-3.112.752zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"speakers.html\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-mic desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M10 8V3a2 2 0 1 0-4 0v5a2 2 0 1 0 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13]],[],false,[]]",
+    "id": "Vczv0IJb",
+    "block": "[[[10,0],[14,0,\"row align-items-center h-100 home-page-nav\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"meetings\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-people desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1h7.956a.274.274 0 0 0 .014-.002l.008-.002c-.002-.264-.167-1.03-.76-1.72C13.688 10.629 12.718 10 11 10c-1.717 0-2.687.63-3.24 1.276-.593.69-.759 1.457-.76 1.72a1.05 1.05 0 0 0 .022.004zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10c-1.668.02-2.615.64-3.16 1.276C1.163 11.97 1 12.739 1 13h3c0-1.045.323-2.086.92-3zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"books\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-book desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1 2.828v9.923c.918-.35 2.107-.692 3.287-.81 1.094-.111 2.278-.039 3.213.492V2.687c-.654-.689-1.782-.886-3.112-.752-1.234.124-2.503.523-3.388.893zm7.5-.141v9.746c.935-.53 2.12-.603 3.213-.493 1.18.12 2.37.461 3.287.811V2.828c-.885-.37-2.154-.769-3.388-.893-1.33-.134-2.458.063-3.112.752zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"speakers\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-mic desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M10 8V3a2 2 0 1 0-4 0v5a2 2 0 1 0 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13]],[],false,[]]",
     "moduleName": "juniormax/templates/index.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/loading", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "yyGj1R4e",
+    "block": "[[[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \"],[10,\"img\"],[14,\"src\",\"/cubs.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n\"],[13]],[],false,[]]",
+    "moduleName": "juniormax/templates/loading.hbs",
     "isStrictMode": false
   });
 
@@ -1861,7 +2013,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+751a789f"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+572d10cb"});
           }
         
 //# sourceMappingURL=juniormax.map
