@@ -76,6 +76,18 @@
 
   _exports.default = _default;
 });
+;define("juniormax/components/author-item", ["exports", "@ember/component"], function (_exports, _component) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _component.default.extend({});
+
+  _exports.default = _default;
+});
 ;define("juniormax/components/bs-accordion", ["exports", "ember-bootstrap/components/bs-accordion"], function (_exports, _bsAccordion) {
   "use strict";
 
@@ -1135,7 +1147,7 @@
     }
   });
 });
-;define("juniormax/helpers/get-author", ["exports", "@ember/component/helper", "@ember/string"], function (_exports, _helper, _string) {
+;define("juniormax/helpers/get-author", ["exports", "@ember/component/helper"], function (_exports, _helper) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -1552,7 +1564,13 @@
     this.route('meetings');
     this.route('speakers');
     this.route('books');
-    this.route('author');
+    this.route('author', {
+      path: '/authors'
+    }, function () {
+      this.route('detail', {
+        path: '/:id'
+      });
+    });
     this.route('404', {
       path: '*path'
     });
@@ -1597,6 +1615,28 @@
           }
         }, 3000);
       });*/
+    }
+
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/routes/author/detail", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _route.default.extend({
+    dataService: (0, _service.inject)('data'),
+
+    model(_ref) {
+      let {
+        id
+      } = _ref;
+      return this.dataService.getAuthorData(id);
     }
 
   });
@@ -1703,7 +1743,7 @@
     }
   });
 });
-;define("juniormax/services/data", ["exports", "@ember/service"], function (_exports, _service) {
+;define("juniormax/services/data", ["exports", "@ember/service", "juniormax/config/environment"], function (_exports, _service, _environment) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -1713,12 +1753,17 @@
 
   class DataService extends _service.default {
     getAuthorsData() {
-      return fetch('http://localhost:3000/authors').then(response => response.json());
+      return fetch(`${_environment.default.backendURL}/authors`).then(response => response.json());
+    }
+
+    getAuthorData(id) {
+      return fetch(`${_environment.default.backendURL}/authors/${id}`).then(response => response.json());
     }
 
   }
 
   _exports.default = DataService;
+  ;
 });
 ;define("juniormax/services/page-title-list", ["exports", "ember-page-title/services/page-title-list"], function (_exports, _pageTitleList) {
   "use strict";
@@ -1785,8 +1830,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "DwlDGbf+",
-    "block": "[[[10,\"head\"],[12],[1,\"\\n\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"assets/styles.css\"],[12],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\\t\\t\"],[10,3],[14,0,\"navbar-brand\"],[14,6,\"index\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"index\"],[12],[1,\"Рабочий стол \"],[10,1],[14,0,\"sr-only\"],[12],[1,\"(текущий)\"],[13],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"meetings\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"books\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"speakers\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link text-success\"],[14,6,\"#\"],[12],[1,\"Оставить заявку\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link text-primary\"],[14,6,\"#\"],[12],[1,\"Запланировать\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\"],[46,[28,[37,1],null,null],null,null,null],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2021\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13],[1,\"\\n\"]],[],false,[\"component\",\"-outlet\"]]",
+    "id": "jPdeyhSr",
+    "block": "[[[10,\"head\"],[12],[1,\"\\n\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"assets/styles.css\"],[12],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\"]],[]]]]],[1,\"\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"nav-link\",\"author.index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\tРабочий стол \\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"nav-link text-success\",\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tВстречи клуба\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"nav-link text-success\",\"books\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tКниги\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"nav-link text-success\",\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tСпикеры\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"nav-link text-success\",\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tОставить заявку\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"nav-link text-success\",\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tЗапланировать\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2021\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13],[1,\"\\n\"]],[],false,[\"link-to\",\"component\",\"-outlet\"]]",
     "moduleName": "juniormax/templates/application.hbs",
     "isStrictMode": false
   });
@@ -1802,9 +1847,26 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "XGzn4PcP",
-    "block": "[[[10,0],[14,0,\"panel-heading\"],[14,5,\"margin-top: 200px;\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"search\"],[12],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Search by Author Name\",[33,1]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,3],[14,6,\"\"],[14,0,\"btn-new\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"sr-only\"],[12],[1,\"Add new Author\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,0],[14,0,\"panel-content\"],[12],[1,\"\\n    \"],[10,\"h3\"],[14,0,\"panel-title\"],[12],[1,\"Authors\"],[13],[1,\"\\n    \"],[10,\"ul\"],[14,0,\"collection\"],[12],[1,\"\\n\"],[42,[28,[37,3],[[28,[37,3],[[33,4]],null]],null],null,[[[1,\"            \"],[10,\"li\"],[12],[1,\"\\n                \"],[10,3],[14,6,\"\"],[12],[1,\"\\n                    \"],[1,[28,[35,5],[[30,1,[\"firstName\"]],[30,1,[\"lastName\"]]],null]],[1,\"\\n                \"],[13],[1,\"\\n            \"],[13],[1,\"\\n\"]],[1]],null],[1,\"    \"],[13],[1,\"\\n\"],[13]],[\"author\"],false,[\"input\",\"search\",\"each\",\"-track-array\",\"model\",\"get-author\"]]",
+    "id": "CdpfNS1n",
+    "block": "[[[10,0],[14,0,\"panel-heading\"],[14,5,\"margin-top: 200px;\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"search\"],[12],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Search by Author Name\",[33,1]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,3],[14,6,\"\"],[14,0,\"btn-new\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"sr-only\"],[12],[1,\"Add new Author\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,0],[14,0,\"panel-content\"],[12],[1,\"\\n    \"],[10,\"h3\"],[14,0,\"panel-title\"],[12],[1,\"Authors\"],[13],[1,\"\\n\\n    \"],[10,\"ul\"],[14,0,\"collection\"],[12],[1,\"\\n\"],[42,[28,[37,3],[[28,[37,3],[[33,4]],null]],null],null,[[[1,\"            \"],[1,[28,[35,5],null,[[\"firstName\",\"lastName\",\"idAuthor\",\"tagName\"],[[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"id\"]],\"li\"]]]],[1,\"\\n\"]],[1]],null],[1,\"    \"],[13],[1,\"\\n\"],[13],[1,\"\\n\"],[46,[28,[37,7],null,null],null,null,null]],[\"author\"],false,[\"input\",\"search\",\"each\",\"-track-array\",\"model\",\"author-item\",\"component\",\"-outlet\"]]",
     "moduleName": "juniormax/templates/author.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/author/detail", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "0ksGws7m",
+    "block": "[[[10,0],[14,0,\"slide-out-bg\"],[12],[13],[1,\"\\n\\n\"],[10,0],[14,0,\"slide-out\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"author.index\"]],[[\"default\"],[[[[1,\"            \"],[10,1],[14,0,\"btn-back\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-heading\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n                \"],[10,\"h3\"],[12],[1,[33,1,[\"lastName\"]]],[1,\" \"],[1,[33,1,[\"firstName\"]]],[13],[1,\"\\n                \"],[10,0],[14,0,\"actions\"],[12],[1,\"\\n                    \"],[10,3],[14,6,\"\"],[14,0,\"btn-pop\"],[12],[1,\"edit\"],[13],[1,\"\\n                    \"],[10,\"button\"],[14,0,\"btn-recessed\"],[12],[1,\"delete\"],[13],[1,\"\\n                \"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-content\"],[12],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"model\"]]",
+    "moduleName": "juniormax/templates/author/detail.hbs",
     "isStrictMode": false
   });
 
@@ -1822,6 +1884,23 @@
     "id": "Aw0/uA3A",
     "block": "[[[1,\"    \"],[10,0],[14,0,\"htop\"],[12],[1,\"\\n      \"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Книги\"],[13],[1,\"\\n      \"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n          \"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить книгу\"],[14,4,\"button\"],[12],[1,\"\\n            \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n              \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n            \"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n          \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n            \"],[10,\"input\"],[14,0,\"form-control mr-2 search-long\"],[14,\"placeholder\",\"Найти по полям\"],[14,\"aria-label\",\"Найти по полям\"],[14,4,\"search\"],[12],[13],[1,\"\\n            \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n          \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n            \"],[10,\"input\"],[14,0,\"form-control mr-2\"],[14,\"placeholder\",\"Поиск по тегам\"],[14,\"aria-label\",\"Найти по тегам\"],[14,4,\"search\"],[12],[13],[1,\"\\n            \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Поиск\"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n      \"],[13],[1,\"\\n      \"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3 fix-margin\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"card\"],[12],[1,\"\\n            \"],[10,\"img\"],[14,\"src\",\"assets/images/book-cover.jpg\"],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n            \"],[10,0],[14,0,\"card-header\"],[12],[1,\"\\n                \"],[10,\"h5\"],[14,0,\"card-title\"],[12],[1,\"Название книги\"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,\"ul\"],[14,0,\"list-group list-group-flush\"],[12],[1,\"\\n              \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Автор\"],[13],[1,\": Фамилия Имя\"],[13],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Количество страниц\"],[13],[1,\": 333\"],[13],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Теги\"],[13],[1,\": \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#суперкгнига\"],[13],[13],[1,\", \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#программирование\"],[13],[13],[13],[1,\"\\n              \"],[13],[1,\"\\n              \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                  \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n                    Рейтинг:\\n                  \"],[13],[1,\"\\n                  \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                    \"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n                      \"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[14,5,\"width: 25%;\"],[14,\"aria-valuenow\",\"25\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,\"25%\"],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n              \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                  \"],[10,3],[14,6,\"#\"],[14,0,\"card-link line-offset\"],[12],[1,\"Описание\"],[13],[1,\"\\n                \"],[13],[1,\"\\n                \"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n                  \"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n                    \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                      \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                  \"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n                    \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                      \"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n                      \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n          \"],[10,0],[14,0,\"card\"],[12],[1,\"\\n            \"],[10,\"img\"],[14,\"src\",\"assets/images/book-cover.jpg\"],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n            \"],[10,0],[14,0,\"card-header\"],[12],[1,\"\\n                \"],[10,\"h5\"],[14,0,\"card-title\"],[12],[1,\"Название книги\"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,\"ul\"],[14,0,\"list-group list-group-flush\"],[12],[1,\"\\n              \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Автор\"],[13],[1,\": Фамилия Имя\"],[13],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Количество страниц\"],[13],[1,\": 333\"],[13],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Теги\"],[13],[1,\": \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#суперкгнига\"],[13],[13],[1,\", \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#программирование\"],[13],[13],[13],[1,\"\\n              \"],[13],[1,\"\\n              \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                  \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n                    Рейтинг:\\n                  \"],[13],[1,\"\\n                  \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                    \"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n                      \"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[14,5,\"width: 25%;\"],[14,\"aria-valuenow\",\"25\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,\"25%\"],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n              \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                  \"],[10,3],[14,6,\"#\"],[14,0,\"card-link line-offset\"],[12],[1,\"Описание\"],[13],[1,\"\\n                \"],[13],[1,\"\\n                \"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n                  \"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n                    \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                      \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                  \"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n                    \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                      \"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n                      \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n          \"],[10,0],[14,0,\"card\"],[12],[1,\"\\n            \"],[10,\"img\"],[14,\"src\",\"assets/images/book-cover.jpg\"],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n            \"],[10,0],[14,0,\"card-header\"],[12],[1,\"\\n                \"],[10,\"h5\"],[14,0,\"card-title\"],[12],[1,\"Название книги\"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,\"ul\"],[14,0,\"list-group list-group-flush\"],[12],[1,\"\\n              \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Автор\"],[13],[1,\": Фамилия Имя\"],[13],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Количество страниц\"],[13],[1,\": 333\"],[13],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Теги\"],[13],[1,\": \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#суперкгнига\"],[13],[13],[1,\", \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#программирование\"],[13],[13],[13],[1,\"\\n              \"],[13],[1,\"\\n              \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                  \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n                    Рейтинг:\\n                  \"],[13],[1,\"\\n                  \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                    \"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n                      \"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[14,5,\"width: 25%;\"],[14,\"aria-valuenow\",\"25\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,\"25%\"],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n              \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                  \"],[10,3],[14,6,\"#\"],[14,0,\"card-link line-offset\"],[12],[1,\"Описание\"],[13],[1,\"\\n                \"],[13],[1,\"\\n                \"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n                  \"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n                    \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                      \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                  \"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n                    \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                      \"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n                      \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n          \"],[10,0],[14,0,\"card\"],[12],[1,\"\\n            \"],[10,\"img\"],[14,\"src\",\"assets/images/book-cover.jpg\"],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n            \"],[10,0],[14,0,\"card-header\"],[12],[1,\"\\n                \"],[10,\"h5\"],[14,0,\"card-title\"],[12],[1,\"Название книги\"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,\"ul\"],[14,0,\"list-group list-group-flush\"],[12],[1,\"\\n              \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Автор\"],[13],[1,\": Фамилия Имя\"],[13],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Количество страниц\"],[13],[1,\": 333\"],[13],[1,\"\\n                \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Теги\"],[13],[1,\": \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#суперкгнига\"],[13],[13],[1,\", \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#программирование\"],[13],[13],[13],[1,\"\\n              \"],[13],[1,\"\\n              \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                  \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n                    Рейтинг:\\n                  \"],[13],[1,\"\\n                  \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                    \"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n                      \"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[14,5,\"width: 25%;\"],[14,\"aria-valuenow\",\"25\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,\"25%\"],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n              \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                  \"],[10,3],[14,6,\"#\"],[14,0,\"card-link line-offset\"],[12],[1,\"Описание\"],[13],[1,\"\\n                \"],[13],[1,\"\\n                \"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n                  \"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n                    \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                      \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                  \"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n                    \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                      \"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n                      \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n                    \"],[13],[1,\"\\n                  \"],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13]],[],false,[]]",
     "moduleName": "juniormax/templates/books.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/components/author-item", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "VFcCr6YM",
+    "block": "[[[6,[39,0],null,[[\"route\",\"model\"],[\"author.detail\",[33,1]]],[[\"default\"],[[[[1,\"    \"],[1,[28,[35,2],[[33,3],[33,4]],null]],[1,\"\\n\"]],[]]]]]],[],false,[\"link-to\",\"idAuthor\",\"get-author\",\"firstName\",\"lastName\"]]",
+    "moduleName": "juniormax/templates/components/author-item.hbs",
     "isStrictMode": false
   });
 
@@ -1862,8 +1941,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "JB4kQjAK",
-    "block": "[[[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \"],[10,\"img\"],[14,\"src\",\"/error.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n\"],[13]],[],false,[]]",
+    "id": "n217xBw7",
+    "block": "[[[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \"],[10,\"img\"],[14,\"src\",\"/error.gif\"],[14,\"alt\",\"error\"],[12],[13],[1,\"\\n\"],[13]],[],false,[]]",
     "moduleName": "juniormax/templates/error.hbs",
     "isStrictMode": false
   });
@@ -2013,7 +2092,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+572d10cb"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+1139fcb1"});
           }
         
 //# sourceMappingURL=juniormax.map

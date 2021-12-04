@@ -3,5 +3,9 @@
         {"id": 1, "firstName": "Robert", "lastName": "Martin"},
         {"id": 2, "firstName": "C.S.", "lastName": "Lewis"},
         {"id": 3, "firstName": "Edgar", "lastName": "Poe"}
+    ],
+
+    "books": [
+            {"id": 1, "title": "NameBook", "author": "NameAuthor", "pages": "Number"}
     ]
 }

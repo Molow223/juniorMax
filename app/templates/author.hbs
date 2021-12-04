@@ -10,13 +10,11 @@
 
 <div class="panel-content">
     <h3 class="panel-title">Authors</h3>
+
     <ul class="collection">
         {{#each model as |author|}}
-            <li>
-                <a href>
-                    {{get-author author.firstName author.lastName}}
-                </a>
-            </li>
+            {{author-item firstName=author.firstName lastName=author.lastName idAuthor=author.id tagName='li'}}
         {{/each}}
     </ul>
 </div>
+{{outlet}}
