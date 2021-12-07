@@ -1,3 +1,12 @@
 import Route from '@ember/routing/route';
+import { inject as service } from '@ember/service';
 
-export default class SpeakersRoute extends Route {}
+export default Route.extend({
+    dataService: service('data'),
+  
+    model() {
+      //return this.dataService.getBooksData();
+      return this.dataService.getSpeakersData();
+    },
+  });
+

@@ -11,4 +11,14 @@ export default class DataService extends Service {
     return fetch(`${ENV.backendURL}/authors/${id}`).then((response) =>
       response.json());
   }
+
+  getBooksData() {
+    return fetch(`${ENV.backendURL}/books`).then((response) =>
+      response.json());
+  }
+
+  getSpeakersData() {
+    return fetch(`${ENV.backendURL}/speakers`).then((response) =>
+      response.json());
+    }
 };

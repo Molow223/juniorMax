@@ -1,11 +1,16 @@
 {
-    "authors": [
-        {"id": 1, "firstName": "Robert", "lastName": "Martin"},
-        {"id": 2, "firstName": "C.S.", "lastName": "Lewis"},
-        {"id": 3, "firstName": "Edgar", "lastName": "Poe"}
+    "speakers": [
+        {"id": 1, "firstName": "Robert", "lastName": "Martin", "img": "5.jpg"},
+        {"id": 2, "firstName": "C.S.", "lastName": "Lewis", "img": "6.jpg"},
+        {"id": 3, "firstName": "Edgar", "lastName": "Poe", "img": "7.jpg"},
+        {"id": 4, "firstName": "Alex", "lastName": "Push", "img": "8.jpg"}
     ],
 
     "books": [
-            {"id": 1, "title": "NameBook", "author": "NameAuthor", "pages": "Number"}
+            {"id": 1, "title": "Консервация", "author": "NameAuthor1", "pages": "123", "img": "1.jpg"},
+            {"id": 2, "title": "Чебурашка", "author": "NameAuthor2", "pages": "456", "img": "2.jpg"},
+            {"id": 3, "title": "Про кубики", "author": "NameAuthor3", "pages": "789", "img": "3.jpg"},
+            {"id": 4, "title": "Чип и Дейл", "author": "NameAuthor4", "pages": "147", "img": "4.jpg"}
+
     ]
 }

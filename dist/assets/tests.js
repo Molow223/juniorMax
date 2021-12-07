@@ -60,6 +60,50 @@ define("juniormax/tests/integration/helpers/author-test", ["@ember/template-fact
     });
   });
 });
+define("juniormax/tests/integration/helpers/get-books-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
+  "use strict";
+
+  (0, _qunit.module)('Integration | Helper | get-books', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it renders', async function (assert) {
+      this.set('inputValue', '1234');
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        {{get-books this.inputValue}}
+      */
+      {
+        "id": "kSmDsQUA",
+        "block": "[[[1,[28,[35,0],[[30,0,[\"inputValue\"]]],null]]],[],false,[\"get-books\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText('1234');
+    });
+  });
+});
+define("juniormax/tests/integration/helpers/get-speakers-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
+  "use strict";
+
+  (0, _qunit.module)('Integration | Helper | get-speakers', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it renders', async function (assert) {
+      this.set('inputValue', '1234');
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        {{get-speakers this.inputValue}}
+      */
+      {
+        "id": "E0XI914m",
+        "block": "[[[1,[28,[35,0],[[30,0,[\"inputValue\"]]],null]]],[],false,[\"get-speakers\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText('1234');
+    });
+  });
+});
 define("juniormax/tests/test-helper", ["juniormax/app", "juniormax/config/environment", "qunit", "@ember/test-helpers", "qunit-dom", "ember-qunit"], function (_app, _environment, QUnit, _testHelpers, _qunitDom, _emberQunit) {
   "use strict";
 
