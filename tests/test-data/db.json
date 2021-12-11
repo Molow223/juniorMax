@@ -7,10 +7,17 @@
     ],
 
     "books": [
-            {"id": 1, "title": "Консервация", "author": "NameAuthor1", "pages": "123", "img": "1.jpg"},
-            {"id": 2, "title": "Чебурашка", "author": "NameAuthor2", "pages": "456", "img": "2.jpg"},
-            {"id": 3, "title": "Про кубики", "author": "NameAuthor3", "pages": "789", "img": "3.jpg"},
-            {"id": 4, "title": "Чип и Дейл", "author": "NameAuthor4", "pages": "147", "img": "4.jpg"}
+            {"id": 1, "title": "Консервация", "author": "NameAuthor1", "pages": "123", "img": "1.jpg", "progress": "75%"},
+            {"id": 2, "title": "Чебурашка", "author": "NameAuthor2", "pages": "456", "img": "2.jpg", "progress": "50%"},
+            {"id": 3, "title": "Про кубики", "author": "NameAuthor3", "pages": "789", "img": "3.jpg", "progress": "32%"},
+            {"id": 4, "title": "Чип и Дейл", "author": "NameAuthor4", "pages": "147", "img": "4.jpg", "progress": "68%"}
 
+    ],
+
+    "meettings": [
+        {"id": 1, "title": "Консервация", "author": "NameAuthor1", "img": "1.jpg", "progress": "75%","review": "Molestiae molestiae saepe commodi delectus possimus nobis et. Assumenda sunt blanditiis.  Pariatur et aut molestiae nihil. Blanditiis explicabo autem error. Qui aperiam sunt earum quod aut deserunt corporis accusamus. Quia numquam est magnam cumque."},
+        {"id": 2, "title": "Чебурашка", "author": "NameAuthor2", "img": "2.jpg", "progress": "50%", "review": "Sapiente possimus temporibus eligendi id ea voluptate sit. Qui dolore tempore assumenda est quis et ut ut. Fugit reiciendis harum. Iusto magni aut illo in nesciunt reprehenderit. Porro ut aliquam autem vel. Dolorum officiis nobis ducimus dolorem nulla laudantium deleniti mollitia recusandae."},
+        {"id": 3, "title": "Про кубики", "author": "NameAuthor3", "img": "3.jpg", "progress": "32%","review": "Eum non qui tempore. Omnis debitis ut tenetur vero esse quia. Animi eum non vel consectetur unde voluptas modi qui error."},
+        {"id": 4, "title": "Чип и Дейл", "author": "NameAuthor4", "review": "147", "img": "4.jpg", "progress": "68%"}
     ]
 }

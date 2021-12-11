@@ -2,11 +2,10 @@ import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
 
 export default Route.extend({
-    dataService: service('data'),
-  
-    model() {
-      //return this.dataService.getBooksData();
-      return this.dataService.getSpeakersData();
-    },
-  });
+  dataService: service('data'),
 
+  model() {
+    //return this.dataService.getBooksData();
+    return this.dataService.getSpeakersData();
+  },
+});

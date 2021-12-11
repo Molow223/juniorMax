@@ -82,6 +82,28 @@ define("juniormax/tests/integration/helpers/get-books-test", ["@ember/template-f
     });
   });
 });
+define("juniormax/tests/integration/helpers/get-meetings-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
+  "use strict";
+
+  (0, _qunit.module)('Integration | Helper | get-meetings', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it renders', async function (assert) {
+      this.set('inputValue', '1234');
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        {{get-meetings this.inputValue}}
+      */
+      {
+        "id": "DIllPmjB",
+        "block": "[[[1,[28,[35,0],[[30,0,[\"inputValue\"]]],null]]],[],false,[\"get-meetings\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText('1234');
+    });
+  });
+});
 define("juniormax/tests/integration/helpers/get-speakers-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
   "use strict";
 
