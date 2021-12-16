@@ -38,6 +38,82 @@ define("juniormax/tests/integration/components/author-item-test", ["@ember/templ
     });
   });
 });
+define("juniormax/tests/integration/components/speaker-form-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
+  "use strict";
+
+  (0, _qunit.module)('Integration | Component | speaker-form', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
+    (0, _qunit.test)('it renders', async function (assert) {
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.set('myAction', function(val) { ... });
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        <SpeakerForm />
+      */
+      {
+        "id": "eRxeBbU+",
+        "block": "[[[8,[39,0],null,null,null]],[],false,[\"speaker-form\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText(''); // Template block usage:
+
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        
+            <SpeakerForm>
+              template block text
+            </SpeakerForm>
+          
+      */
+      {
+        "id": "w5DrMkUX",
+        "block": "[[[1,\"\\n      \"],[8,[39,0],null,null,[[\"default\"],[[[[1,\"\\n        template block text\\n      \"]],[]]]]],[1,\"\\n    \"]],[],false,[\"speaker-form\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText('template block text');
+    });
+  });
+});
+define("juniormax/tests/integration/components/speaker-item-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
+  "use strict";
+
+  (0, _qunit.module)('Integration | Component | speaker-item', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
+    (0, _qunit.test)('it renders', async function (assert) {
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.set('myAction', function(val) { ... });
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        <SpeakerItem />
+      */
+      {
+        "id": "uRK6ikwU",
+        "block": "[[[8,[39,0],null,null,null]],[],false,[\"speaker-item\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText(''); // Template block usage:
+
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        
+            <SpeakerItem>
+              template block text
+            </SpeakerItem>
+          
+      */
+      {
+        "id": "EJ1c/qNk",
+        "block": "[[[1,\"\\n      \"],[8,[39,0],null,null,[[\"default\"],[[[[1,\"\\n        template block text\\n      \"]],[]]]]],[1,\"\\n    \"]],[],false,[\"speaker-item\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText('template block text');
+    });
+  });
+});
 define("juniormax/tests/integration/helpers/author-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
   "use strict";
 
@@ -145,6 +221,54 @@ define("juniormax/tests/unit/controllers/aplication-test", ["qunit", "ember-quni
     });
   });
 });
+define("juniormax/tests/unit/controllers/author/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | author/create', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:author/create');
+      assert.ok(controller);
+    });
+  });
+});
+define("juniormax/tests/unit/controllers/speakers/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | speakers/create', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:speakers/create');
+      assert.ok(controller);
+    });
+  });
+});
+define("juniormax/tests/unit/controllers/speakers/detail-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | speakers/detail', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:speakers/detail');
+      assert.ok(controller);
+    });
+  });
+});
+define("juniormax/tests/unit/controllers/speakers/edit-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | speakers/edit', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:speakers/edit');
+      assert.ok(controller);
+    });
+  });
+});
 define("juniormax/tests/unit/routes/404-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
   "use strict";
 
@@ -218,6 +342,50 @@ define("juniormax/tests/unit/routes/speakers-test", ["qunit", "ember-qunit"], fu
     (0, _emberQunit.setupTest)(hooks);
     (0, _qunit.test)('it exists', function (assert) {
       let route = this.owner.lookup('route:speakers');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/speakers/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | speakers/create', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:speakers/create');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/speakers/detail-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | speakers/detail', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:speakers/detail');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/speakers/edit-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | speakers/edit', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:speakers/edit');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/speakers/index-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | speakers/index', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:speakers/index');
       assert.ok(route);
     });
   });

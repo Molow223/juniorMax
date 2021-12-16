@@ -1,0 +1,26 @@
+<div>
+    <div>
+        <div>
+            {{#link-to "speakers"}}
+            <button type="button">Back</button>
+            {{/link-to}}
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <h3>Edit Speaker: {{model.fullName}}</h3>
+        </div>
+    </div>
+
+    <div>
+        {{speaker-form speaker=model onsubmit=(action "saveSpeaker")}}
+    </div>
+    <div>
+        <div>
+            <h4>Привет!</h4>
+            <h5>Меня зовут Максим.</h5>
+            <h6>И я разрабатываю веб-приложения!</h6>
+        </div>
+    </div>
+</div>

@@ -4,7 +4,7 @@ import { inject as service } from '@ember/service';
 export default Route.extend({
   dataService: service('data'),
 
-  model() {
-    return this.dataService.getMeetingsData();
+  model({ id }) {
+    return this.dataService.getSpeakerData(id);
   },
 });

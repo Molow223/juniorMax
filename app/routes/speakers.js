@@ -5,7 +5,6 @@ export default Route.extend({
   dataService: service('data'),
 
   model() {
-    //return this.dataService.getBooksData();
     return this.dataService.getSpeakersData();
   },
 });

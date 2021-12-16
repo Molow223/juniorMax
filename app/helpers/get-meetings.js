@@ -5,4 +5,3 @@ export function getMeetings(positional /*, named*/) {
   return `${meeting}`;
 }
 export default helper(getMeetings);
-

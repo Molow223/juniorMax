@@ -76,18 +76,6 @@
 
   _exports.default = _default;
 });
-;define("juniormax/components/author-item", ["exports", "@ember/component"], function (_exports, _component) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.default = void 0;
-
-  var _default = _component.default.extend({});
-
-  _exports.default = _default;
-});
 ;define("juniormax/components/bs-accordion", ["exports", "ember-bootstrap/components/bs-accordion"], function (_exports, _bsAccordion) {
   "use strict";
 
@@ -907,6 +895,38 @@
     }
   });
 });
+;define("juniormax/components/speaker-form", ["exports", "@ember/component"], function (_exports, _component) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _component.default.extend({
+    actions: {
+      submitForm(e) {
+        e.preventdefault();
+        this.onsubmit(this.get('speaker'));
+      }
+
+    }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/components/speaker-item", ["exports", "@ember/component"], function (_exports, _component) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _component.default.extend({});
+
+  _exports.default = _default;
+});
 ;define("juniormax/components/welcome-page", ["exports", "ember-welcome-page/components/welcome-page"], function (_exports, _welcomePage) {
   "use strict";
 
@@ -929,6 +949,77 @@
   _exports.default = void 0;
 
   var _default = _controller.default.extend({});
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/speakers/create", ["exports", "@ember/controller", "@ember/service", "@ember/object"], function (_exports, _controller, _service, _object) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    init() {
+      this._super(...arguments);
+
+      this.set('speaker', _object.default.create());
+      this.get('speaker').set('firstName', '');
+      this.get('speaker').set('lastName', '');
+    },
+
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      async saveSpeaker(speaker) {
+        await this.get("dataService").createSpeaker(speaker);
+        this.transitionToRoute('speakers.index');
+      }
+
+    }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/speakers/detail", ["exports", "@ember/controller", "@ember/service"], function (_exports, _controller, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      async deleteSpeaker(speaker) {
+        await this.dataService.deleteSpeaker(speaker);
+        this.transitionToRoute('speakers.index');
+      }
+
+    }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/speakers/edit", ["exports", "@ember/controller", "@ember/service", "@ember/object"], function (_exports, _controller, _service, _object) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      async saveSpeaker(speaker) {
+        await this.get("dataService").updateSpeaker(speaker);
+        this.transitionToRoute('speakers.index');
+      }
+
+    }
+  });
 
   _exports.default = _default;
 });
@@ -1146,26 +1237,6 @@
       return _util.EnsureSafeComponentHelper;
     }
   });
-});
-;define("juniormax/helpers/get-author", ["exports", "@ember/component/helper"], function (_exports, _helper) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.default = void 0;
-  _exports.getAuthor = getAuthor;
-
-  function getAuthor(positional
-  /*, named*/
-  ) {
-    let [firstName, lastName] = positional;
-    return `${lastName} ${firstName}`;
-  }
-
-  var _default = (0, _helper.helper)(getAuthor);
-
-  _exports.default = _default;
 });
 ;define("juniormax/helpers/get-books", ["exports", "@ember/component/helper"], function (_exports, _helper) {
   "use strict";
@@ -1519,6 +1590,22 @@
   };
   _exports.default = _default;
 });
+;define("juniormax/models/base-model", ["exports", "@ember/object"], function (_exports, _object) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _object.default.extend({
+    fullName: (0, _object.computed)('firstName', 'lastName', function () {
+      return `${this.get('lastName')} ${this.get('firstName')}`;
+    })
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/modifiers/create-ref", ["exports", "ember-ref-bucket/modifiers/create-ref"], function (_exports, _createRef) {
   "use strict";
 
@@ -1622,7 +1709,15 @@
 
   Router.map(function () {
     this.route('meetings');
-    this.route('speakers');
+    this.route('speakers', function () {
+      this.route('detail', {
+        path: '/:id'
+      });
+      this.route('create');
+      this.route('edit', {
+        path: '/:id/edit'
+      });
+    });
     this.route('books');
     this.route('404', {
       path: '*path'
@@ -1642,59 +1737,6 @@
   class W404Route extends _route.default {}
 
   _exports.default = W404Route;
-});
-;define("juniormax/routes/author", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.default = void 0;
-
-  //import { Promise } from 'rsvp';
-  //import { later } from '@ember runloop';
-  var _default = _route.default.extend({
-    dataService: (0, _service.inject)('data'),
-
-    model() {
-      return this.dataService.getAuthorsData();
-      /*return new Promise((resolve) => {
-        later(async () => {
-          try {
-            let authors = await this.dataService.getAuthorsData();
-            resolve(authors);
-          } catch (e) {
-            reject('Connection failed');
-          }
-        }, 3000);
-      });*/
-    }
-
-  });
-
-  _exports.default = _default;
-});
-;define("juniormax/routes/author/detail", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.default = void 0;
-
-  var _default = _route.default.extend({
-    dataService: (0, _service.inject)('data'),
-
-    model(_ref) {
-      let {
-        id
-      } = _ref;
-      return this.dataService.getAuthorData(id);
-    }
-
-  });
-
-  _exports.default = _default;
 });
 ;define("juniormax/routes/books", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
   "use strict";
@@ -1758,13 +1800,80 @@
     dataService: (0, _service.inject)('data'),
 
     model() {
-      //return this.dataService.getBooksData();
       return this.dataService.getSpeakersData();
     }
 
   });
 
   _exports.default = _default;
+});
+;define("juniormax/routes/speakers/create", ["exports", "@ember/routing/route"], function (_exports, _route) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  class SpeakersCreateRoute extends _route.default {}
+
+  _exports.default = SpeakersCreateRoute;
+});
+;define("juniormax/routes/speakers/detail", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _route.default.extend({
+    dataService: (0, _service.inject)('data'),
+
+    model(_ref) {
+      let {
+        id
+      } = _ref;
+      return this.dataService.getSpeakerData(id);
+    }
+
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/routes/speakers/edit", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _route.default.extend({
+    dataService: (0, _service.inject)('data'),
+
+    model(_ref) {
+      let {
+        id
+      } = _ref;
+      return this.dataService.getSpeakerData(id);
+    }
+
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/routes/speakers/index", ["exports", "@ember/routing/route"], function (_exports, _route) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  class SpeakersIndexRoute extends _route.default {}
+
+  _exports.default = SpeakersIndexRoute;
 });
 ;define("juniormax/serializers/-default", ["exports", "@ember-data/serializer/json"], function (_exports, _json) {
   "use strict";
@@ -1818,7 +1927,7 @@
     }
   });
 });
-;define("juniormax/services/data", ["exports", "@ember/service", "juniormax/config/environment"], function (_exports, _service, _environment) {
+;define("juniormax/services/data", ["exports", "@ember/service", "juniormax/config/environment", "@ember/array"], function (_exports, _service, _environment, _array) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -1826,26 +1935,63 @@
   });
   _exports.default = void 0;
 
-  class DataService extends _service.default {
+  var _default = _service.default.extend({
+    init() {
+      this._super(...arguments);
+
+      this.set('speakers', (0, _array.A)());
+    },
+
     getMeetingsData() {
       return fetch(`${_environment.default.backendURL}/meettings`).then(response => response.json());
-    }
+    },
 
     getBooksData() {
       return fetch(`${_environment.default.backendURL}/books`).then(response => response.json());
-    }
+    },
 
-    getSpeakersData() {
-      return fetch(`${_environment.default.backendURL}/speakers`).then(response => response.json());
-    }
+    async getSpeakersData() {
+      let response = await fetch(`${_environment.default.backendURL}/speakers`);
+      let speakers = await response.json();
+      this.speakers.clear();
+      this.speakers.pushObjects(speakers);
+      return this.speakers;
+    },
 
     getSpeakerData(id) {
-      return fetch(`${_environment.default.backendURL}/speakers/${id}`).then(response => response.json());
+      return this.get('speakers').find(speaker => speaker.id === parseInt(id));
+    },
+
+    deleteSpeaker(speaker) {
+      this.speakers.removeObject(speaker);
+      return fetch(`${_environment.default.backendURL}/speakers/${speaker.id}`, {
+        method: 'DELETE'
+      });
+    },
+
+    createSpeaker(speaker) {
+      return fetch(`${_environment.default.backendURL}/speakers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(speaker)
+      });
+    },
+
+    updateSpeaker(speaker) {
+      return fetch(`${_environment.default.backendURL}/speakers/${speaker.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(speaker)
+      });
     }
 
-  }
+  });
 
-  _exports.default = DataService;
+  _exports.default = _default;
 });
 ;define("juniormax/services/page-title-list", ["exports", "ember-page-title/services/page-title-list"], function (_exports, _pageTitleList) {
   "use strict";
@@ -1912,43 +2058,9 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "vVTVEGaE",
-    "block": "[[[10,\"head\"],[12],[1,\"\\n\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"assets/styles.css\"],[12],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\"]],[]]]]],[1,\"\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\tРабочий стол \\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tВстречи клуба\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tКниги\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tСпикеры\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tОставить заявку\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tЗапланировать\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2021\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13],[1,\"\\n\"]],[],false,[\"link-to\",\"component\",\"-outlet\"]]",
+    "id": "aR+QjYC9",
+    "block": "[[[1,\"\\n\\n\\t\"],[10,\"head\"],[12],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"assets/styles.css\"],[12],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tРабочий стол\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tВстречи клуба\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tКниги\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tСпикеры\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tОставить заявку\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tЗапланировать\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2021\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"]],[],false,[\"link-to\",\"component\",\"-outlet\"]]",
     "moduleName": "juniormax/templates/application.hbs",
-    "isStrictMode": false
-  });
-
-  _exports.default = _default;
-});
-;define("juniormax/templates/author", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.default = void 0;
-
-  var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "CdpfNS1n",
-    "block": "[[[10,0],[14,0,\"panel-heading\"],[14,5,\"margin-top: 200px;\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"search\"],[12],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Search by Author Name\",[33,1]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,3],[14,6,\"\"],[14,0,\"btn-new\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"sr-only\"],[12],[1,\"Add new Author\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13],[1,\"\\n\\n\"],[10,0],[14,0,\"panel-content\"],[12],[1,\"\\n    \"],[10,\"h3\"],[14,0,\"panel-title\"],[12],[1,\"Authors\"],[13],[1,\"\\n\\n    \"],[10,\"ul\"],[14,0,\"collection\"],[12],[1,\"\\n\"],[42,[28,[37,3],[[28,[37,3],[[33,4]],null]],null],null,[[[1,\"            \"],[1,[28,[35,5],null,[[\"firstName\",\"lastName\",\"idAuthor\",\"tagName\"],[[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"id\"]],\"li\"]]]],[1,\"\\n\"]],[1]],null],[1,\"    \"],[13],[1,\"\\n\"],[13],[1,\"\\n\"],[46,[28,[37,7],null,null],null,null,null]],[\"author\"],false,[\"input\",\"search\",\"each\",\"-track-array\",\"model\",\"author-item\",\"component\",\"-outlet\"]]",
-    "moduleName": "juniormax/templates/author.hbs",
-    "isStrictMode": false
-  });
-
-  _exports.default = _default;
-});
-;define("juniormax/templates/author/detail", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.default = void 0;
-
-  var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "25HJ1fwU",
-    "block": "[[[10,0],[14,0,\"slide-out-bg\"],[12],[13],[1,\"\\n\\n\"],[10,0],[14,0,\"slide-out\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"author.index\"]],[[\"default\"],[[[[1,\"            \"],[10,1],[14,0,\"btn-back\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-heading\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n                \"],[10,\"h3\"],[12],[1,[33,1,[\"lastName\"]]],[1,\" \"],[1,[33,1,[\"firstName\"]]],[13],[1,\"\\n                \"],[10,0],[14,0,\"actions\"],[12],[1,\"\\n                    \"],[10,3],[14,6,\"\"],[14,0,\"btn-pop\"],[12],[1,\"edit\"],[13],[1,\"\\n                    \"],[10,\"button\"],[14,0,\"btn-recessed\"],[14,4,\"button\"],[12],[1,\"delete\"],[13],[1,\"\\n                \"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-content\"],[12],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"model\"]]",
-    "moduleName": "juniormax/templates/author/detail.hbs",
     "isStrictMode": false
   });
 
@@ -1966,23 +2078,6 @@
     "id": "YYVvHOx7",
     "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n  \"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Книги\"],[13],[1,\"\\n  \"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить книгу\"],[14,4,\"button\"],[12],[1,\"\\n        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n          \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2 search-long\"],[14,\"placeholder\",\"Найти по полям\"],[14,\"aria-label\",\"Найти по полям\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2\"],[14,\"placeholder\",\"Поиск по тегам\"],[14,\"aria-label\",\"Найти по тегам\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Поиск\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n  \"],[13],[1,\"\\n\\n\\n  \"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3 fix-margin\"],[12],[1,\"\\n\"],[42,[28,[37,1],[[28,[37,1],[[33,2]],null]],null],null,[[[1,\"    \"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n      \"],[10,0],[14,0,\"card\"],[12],[1,\"\\n        \"],[10,\"img\"],[15,\"src\",[28,[37,3],[[30,1,[\"img\"]]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n        \"],[10,0],[14,0,\"card-header\"],[12],[1,\"\\n\\n          \"],[10,\"h5\"],[14,0,\"card-title\"],[12],[1,[28,[35,3],[[30,1,[\"title\"]]],null]],[13],[1,\"\\n\\n        \"],[13],[1,\"\\n        \"],[10,\"ul\"],[14,0,\"list-group list-group-flush\"],[12],[1,\"\\n          \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Автор\"],[13],[1,\": \"],[1,[28,[35,3],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Количество страниц\"],[13],[1,\": \"],[1,[28,[35,3],[[30,1,[\"pages\"]]],null]],[13],[1,\"\\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Теги\"],[13],[1,\": \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#суперкгнига\"],[13],[13],[1,\", \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#программирование\"],[13],[13],[13],[1,\"\\n          \"],[13],[1,\"\\n          \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n              \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n                Рейтинг:\\n              \"],[13],[1,\"\\n              \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n                  \"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[15,5,[29,[\"width:\",[28,[37,3],[[30,1,[\"progress\"]]],null]]]],[14,\"aria-valuenow\",\"25\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,[28,[35,3],[[30,1,[\"progress\"]]],null]],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n          \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n              \"],[10,3],[14,6,\"#\"],[14,0,\"card-link line-offset\"],[12],[1,\"Описание\"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n              \"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n                \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                  \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n              \"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n                \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                  \"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n                  \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n      \"],[13],[1,\"\\n\\n    \"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\n  \"],[13],[1,\"\\n\\n\"],[13]],[\"book\"],false,[\"each\",\"-track-array\",\"model\",\"get-books\"]]",
     "moduleName": "juniormax/templates/books.hbs",
-    "isStrictMode": false
-  });
-
-  _exports.default = _default;
-});
-;define("juniormax/templates/components/author-item", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
-  "use strict";
-
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports.default = void 0;
-
-  var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "VFcCr6YM",
-    "block": "[[[6,[39,0],null,[[\"route\",\"model\"],[\"author.detail\",[33,1]]],[[\"default\"],[[[[1,\"    \"],[1,[28,[35,2],[[33,3],[33,4]],null]],[1,\"\\n\"]],[]]]]]],[],false,[\"link-to\",\"idAuthor\",\"get-author\",\"firstName\",\"lastName\"]]",
-    "moduleName": "juniormax/templates/components/author-item.hbs",
     "isStrictMode": false
   });
 
@@ -2014,6 +2109,40 @@
     }
   });
 });
+;define("juniormax/templates/components/speaker-form", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "EJEzW5jI",
+    "block": "[[[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"First Name: \"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"First Name\",[33,2,[\"firstName\"]]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"Last Name: \"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"LastName\",[33,2,[\"lastName\"]]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn-submint\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"action\",\"input\",\"speaker\"]]",
+    "moduleName": "juniormax/templates/components/speaker-form.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/components/speaker-item", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "bXQZp6gM",
+    "block": "[[[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.detail\",[33,1]]],[[\"default\"],[[[[1,\"    \"],[1,[28,[35,2],[[33,3],[33,4]],null]],[1,\"\\n\"]],[]]]]]],[],false,[\"link-to\",\"idAuthor\",\"get-speakers\",\"firstName\",\"lastName\"]]",
+    "moduleName": "juniormax/templates/components/speaker-item.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/templates/error", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
   "use strict";
 
@@ -2040,8 +2169,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "Vczv0IJb",
-    "block": "[[[10,0],[14,0,\"row align-items-center h-100 home-page-nav\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"meetings\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-people desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1h7.956a.274.274 0 0 0 .014-.002l.008-.002c-.002-.264-.167-1.03-.76-1.72C13.688 10.629 12.718 10 11 10c-1.717 0-2.687.63-3.24 1.276-.593.69-.759 1.457-.76 1.72a1.05 1.05 0 0 0 .022.004zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10c-1.668.02-2.615.64-3.16 1.276C1.163 11.97 1 12.739 1 13h3c0-1.045.323-2.086.92-3zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"books\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-book desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1 2.828v9.923c.918-.35 2.107-.692 3.287-.81 1.094-.111 2.278-.039 3.213.492V2.687c-.654-.689-1.782-.886-3.112-.752-1.234.124-2.503.523-3.388.893zm7.5-.141v9.746c.935-.53 2.12-.603 3.213-.493 1.18.12 2.37.461 3.287.811V2.828c-.885-.37-2.154-.769-3.388-.893-1.33-.134-2.458.063-3.112.752zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,6,\"speakers\"],[14,0,\"card text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-mic desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M10 8V3a2 2 0 1 0-4 0v5a2 2 0 1 0 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13]],[],false,[]]",
+    "id": "5H0hdDjq",
+    "block": "[[[10,0],[14,0,\"row align-items-center h-100 home-page-nav\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-people desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1h7.956a.274.274 0 0 0 .014-.002l.008-.002c-.002-.264-.167-1.03-.76-1.72C13.688 10.629 12.718 10 11 10c-1.717 0-2.687.63-3.24 1.276-.593.69-.759 1.457-.76 1.72a1.05 1.05 0 0 0 .022.004zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10c-1.668.02-2.615.64-3.16 1.276C1.163 11.97 1 12.739 1 13h3c0-1.045.323-2.086.92-3zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"books\"]],[[\"default\"],[[[[1,\">\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-book desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1 2.828v9.923c.918-.35 2.107-.692 3.287-.81 1.094-.111 2.278-.039 3.213.492V2.687c-.654-.689-1.782-.886-3.112-.752-1.234.124-2.503.523-3.388.893zm7.5-.141v9.746c.935-.53 2.12-.603 3.213-.493 1.18.12 2.37.461 3.287.811V2.828c-.885-.37-2.154-.769-3.388-.893-1.33-.134-2.458.063-3.112.752zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-mic desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M10 8V3a2 2 0 1 0-4 0v5a2 2 0 1 0 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13]],[],false,[\"link-to\"]]",
     "moduleName": "juniormax/templates/index.hbs",
     "isStrictMode": false
   });
@@ -2091,9 +2220,77 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "D+O4pnlO",
-    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить спикера\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"input\"],[14,0,\"form-control mr-2 search-long search-only\"],[14,\"placeholder\",\"ФИО\"],[14,\"aria-label\",\"Спикер\"],[14,4,\"search\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3\"],[12],[1,\"\\n\"],[42,[28,[37,1],[[28,[37,1],[[33,2]],null]],null],null,[[[1,\"\\t\\t\"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[28,[37,3],[[30,1,[\"img\"]]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"card-title\"],[12],[1,[28,[35,3],[[30,1,[\"firstName\"]]],null]],[1,\" \"],[1,[28,[35,3],[[30,1,[\"lastName\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-speaker.html'\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\t\"],[13],[1,\"\\n\"],[13]],[\"author\"],false,[\"each\",\"-track-array\",\"model\",\"get-speakers\"]]",
+    "id": "UEYYdqng",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить спикера\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\tAdd\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"input\"],[14,0,\"form-control mr-2 search-long search-only\"],[14,\"placeholder\",\"ФИО\"],[14,\"aria-label\",\"Спикер\"],[14,4,\"search\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3\"],[12],[1,\"\\n\"],[42,[28,[37,2],[[28,[37,2],[[33,3]],null]],null],null,[[[1,\"\\t\\t\"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[28,[37,4],[[30,1,[\"img\"]]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"\"],[14,0,\"card-title\"],[12],[1,[28,[35,5],null,[[\"firstName\",\"lastName\",\"idAuthor\"],[[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"id\"]]]]]],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\t\"],[13],[1,\"\\n\\n\"],[13],[1,\"\\n\"],[46,[28,[37,7],null,null],null,null,null]],[\"speaker\"],false,[\"link-to\",\"each\",\"-track-array\",\"model\",\"get-speakers\",\"speaker-item\",\"component\",\"-outlet\"]]",
     "moduleName": "juniormax/templates/speakers.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/speakers/create", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "3QTM/Yn1",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Speaker:\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[1,[28,[35,1],null,[[\"speaker\",\"onsubmit\"],[[33,2],[28,[37,3],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n        \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n        \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"speaker-form\",\"speaker\",\"action\"]]",
+    "moduleName": "juniormax/templates/speakers/create.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/speakers/detail", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "E7C2a0tP",
+    "block": "[[[10,0],[14,0,\"slide-out\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn-back\"],[14,4,\"button\"],[12],[1,\"back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n        \"],[10,\"h3\"],[12],[1,\" \"],[1,[33,1,[\"lastName\"]]],[1,\" \"],[1,[33,1,[\"firstName\"]]],[13],[1,\"\\n        \"],[10,0],[14,0,\"actions\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\",\"model\"],[\"btn-pop\",\"speakers.edit\",[33,1,[\"id\"]]]],[[\"default\"],[[[[1,\"            edit\\n\"]],[]]]]],[1,\"            \"],[10,\"button\"],[14,0,\"btn-recessed\"],[15,\"onclick\",[28,[37,2],[[30,0],\"deleteSpeaker\",[33,1]],null]],[14,4,\"button\"],[12],[1,\"delete\"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Привет!\"],[13],[1,\"\\n            \"],[10,\"h4\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n            \"],[10,\"h5\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"model\",\"action\"]]",
+    "moduleName": "juniormax/templates/speakers/detail.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/speakers/edit", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "pkokUtP3",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Edit Speaker: \"],[1,[33,1,[\"fullName\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"speaker\",\"onsubmit\"],[[33,1],[28,[37,3],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n            \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n            \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"model\",\"speaker-form\",\"action\"]]",
+    "moduleName": "juniormax/templates/speakers/edit.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/speakers/index", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "MQ5jYtpv",
+    "block": "[[[1,[28,[35,0],[\"Index\"],null]],[1,\"\\n\"],[46,[28,[37,2],null,null],null,null,null]],[],false,[\"page-title\",\"component\",\"-outlet\"]]",
+    "moduleName": "juniormax/templates/speakers/index.hbs",
     "isStrictMode": false
   });
 
@@ -2174,7 +2371,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+77a27ea3"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+10171407"});
           }
         
 //# sourceMappingURL=juniormax.map
