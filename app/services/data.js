@@ -51,7 +51,7 @@ export default Service.extend({
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(speaker),
+      body: JSON.stringify(speaker)
     });
   },
-});
+}); 
