@@ -8,12 +8,12 @@
     </div>
     <div>
         <div>
-            <h3>New Speaker:</h3>
+            <h3>New Speaker: {{this.model.fullName}}</h3>
         </div>
     </div>
     <div>
         <div>
-            {{speaker-form speaker=speaker onsubmit=(action "saveSpeaker")}}
+            {{speaker-form speaker=this.speaker onsubmit=(action "saveSpeaker")}}
         </div>
     </div>
     <div>

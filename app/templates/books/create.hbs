@@ -1,0 +1,38 @@
+<div>
+    <div>
+        <div>
+            {{#link-to "books"}}
+            <button type="button">Back</button>
+            {{/link-to}}
+        </div>
+    </div>
+    <div>
+        <div class="title">
+            <h3>New Book:</h3>
+        </div>
+    </div>
+    <div>
+        <form onsubmit={{action "saveBook"}}>
+            <div>
+                <label>nameBook:</label>
+                {{input type="text" placeholder="Название книги" value=nameBook}}
+            </div>
+            <div>
+                <label>nameAuthor:</label>
+                {{input type="text" placeholder="Имя Автора" value=nameAuthor}}
+            </div>
+            <div>
+                <label>pagesBook:</label>
+                {{input type="text" placeholder="Кол-во страниц" value=pagesBook}}
+            </div>
+            <div>
+                <button type="submit" class="btn-submit">Сохранить</button>
+            </div>
+        </form>
+    </div>
+    <div>
+        <h4>Привет!</h4>
+        <h5>Меня зовут Максим.</h5>
+        <h6>И я разрабатываю веб-приложения!</h6>
+    </div>
+</div>

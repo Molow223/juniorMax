@@ -9,12 +9,12 @@
 
     <div>
         <div>
-            <h3>Edit Speaker: {{model.fullName}}</h3>
+            <h3>Edit Speaker: {{this.model.fullName}}</h3>
         </div>
     </div>
 
     <div>
-        {{speaker-form speaker=model onsubmit=(action "saveSpeaker")}}
+        {{speaker-form speaker=this.model onsubmit=(action "saveSpeaker")}}
     </div>
     <div>
         <div>

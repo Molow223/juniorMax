@@ -1,12 +1,12 @@
 <form onsubmit={{action "submitForm"}}>
     <div>
-        <label>First Name: </label>
-        {{input type="text" placeholder="First Name" value=speaker.firstName}}
+        <label>First Name: {{this.model.lastName}} {{this.model.firstName}}</label>
+        {{input type="text" placeholder="First Name" value=this.speaker.firstName}}
     </div>
 
     <div>
         <label>Last Name: </label>
-        {{input type="text" placeholder="LastName" value=speaker.lastName}}
+        {{input type="text" placeholder="LastName" value=this.speaker.lastName}}>
     </div>
 
     <div>

@@ -38,6 +38,44 @@ define("juniormax/tests/integration/components/author-item-test", ["@ember/templ
     });
   });
 });
+define("juniormax/tests/integration/components/books-item-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
+  "use strict";
+
+  (0, _qunit.module)('Integration | Component | books-item', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
+    (0, _qunit.test)('it renders', async function (assert) {
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.set('myAction', function(val) { ... });
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        <BooksItem />
+      */
+      {
+        "id": "efJZOqOj",
+        "block": "[[[8,[39,0],null,null,null]],[],false,[\"books-item\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText(''); // Template block usage:
+
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        
+            <BooksItem>
+              template block text
+            </BooksItem>
+          
+      */
+      {
+        "id": "hrzH5spI",
+        "block": "[[[1,\"\\n      \"],[8,[39,0],null,null,[[\"default\"],[[[[1,\"\\n        template block text\\n      \"]],[]]]]],[1,\"\\n    \"]],[],false,[\"books-item\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText('template block text');
+    });
+  });
+});
 define("juniormax/tests/integration/components/speaker-form-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
   "use strict";
 
@@ -233,6 +271,30 @@ define("juniormax/tests/unit/controllers/author/create-test", ["qunit", "ember-q
     });
   });
 });
+define("juniormax/tests/unit/controllers/books/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | books/create', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:books/create');
+      assert.ok(controller);
+    });
+  });
+});
+define("juniormax/tests/unit/controllers/books/detail-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | books/detail', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:books/detail');
+      assert.ok(controller);
+    });
+  });
+});
 define("juniormax/tests/unit/controllers/speakers/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
   "use strict";
 
@@ -309,6 +371,28 @@ define("juniormax/tests/unit/routes/books-test", ["qunit", "ember-qunit"], funct
     (0, _emberQunit.setupTest)(hooks);
     (0, _qunit.test)('it exists', function (assert) {
       let route = this.owner.lookup('route:books');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/books/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | books/create', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:books/create');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/books/detail-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | books/detail', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:books/detail');
       assert.ok(route);
     });
   });

@@ -76,6 +76,18 @@
 
   _exports.default = _default;
 });
+;define("juniormax/components/books-item", ["exports", "@ember/component"], function (_exports, _component) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _component.default.extend({});
+
+  _exports.default = _default;
+});
 ;define("juniormax/components/bs-accordion", ["exports", "ember-bootstrap/components/bs-accordion"], function (_exports, _bsAccordion) {
   "use strict";
 
@@ -907,7 +919,7 @@
     actions: {
       submitForm(e) {
         e.preventdefault();
-        this.onsubmit(this.get('speaker'));
+        this.onsubmit(this.speaker);
       }
 
     }
@@ -952,6 +964,65 @@
 
   _exports.default = _default;
 });
+;define("juniormax/controllers/books/create", ["exports", "@ember/controller", "@ember/service", "@ember/object"], function (_exports, _controller, _service, _object) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    init() {
+      this._super(...arguments);
+
+      this.set('book', _object.default.create());
+      this.book.set('title', '');
+      this.book.set('author', '');
+      this.book.set('pages', '');
+    },
+
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      async saveBook(book) {
+        await this.dataService.createBook(book);
+        this.transitionToRoute('books');
+      },
+
+      changeNameBook(nameBook) {
+        this.set('nameBook', nameBook);
+      },
+
+      changeNameAuthor(nameAuthor) {
+        this.set('nameAuthor', nameAuthor);
+      }
+
+    }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/books/detail", ["exports", "@ember/controller", "@ember/service"], function (_exports, _controller, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      async deleteBook(book) {
+        await this.get('dataService').deleteBook(book);
+        this.transitionToRoute('books.index');
+      }
+
+    }
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/controllers/speakers/create", ["exports", "@ember/controller", "@ember/service", "@ember/object"], function (_exports, _controller, _service, _object) {
   "use strict";
 
@@ -965,14 +1036,14 @@
       this._super(...arguments);
 
       this.set('speaker', _object.default.create());
-      this.get('speaker').set('firstName', '');
-      this.get('speaker').set('lastName', '');
+      this.speaker.set('firstName', '');
+      this.speaker.set('lastName', '');
     },
 
     dataService: (0, _service.inject)('data'),
     actions: {
       async saveSpeaker(speaker) {
-        await this.get("dataService").createSpeaker(speaker);
+        await this.dataService.createSpeaker(speaker);
         this.transitionToRoute('speakers.index');
       }
 
@@ -1014,7 +1085,7 @@
     dataService: (0, _service.inject)('data'),
     actions: {
       async saveSpeaker(speaker) {
-        await this.get("dataService").updateSpeaker(speaker);
+        await this.dataService.updateSpeaker(speaker);
         this.transitionToRoute('speakers.index');
       }
 
@@ -1247,11 +1318,11 @@
   _exports.default = void 0;
   _exports.getBooks = getBooks;
 
-  function getBooks(positional
+  function getBooks(params
   /*, named*/
   ) {
-    let [info] = positional;
-    return `${info}`;
+    let [book] = params;
+    return `${book}`;
   }
 
   var _default = (0, _helper.helper)(getBooks);
@@ -1267,10 +1338,10 @@
   _exports.default = void 0;
   _exports.getMeetings = getMeetings;
 
-  function getMeetings(positional
+  function getMeetings(params
   /*, named*/
   ) {
-    let [meeting] = positional;
+    let [meeting] = params;
     return `${meeting}`;
   }
 
@@ -1287,10 +1358,10 @@
   _exports.default = void 0;
   _exports.getSpeakers = getSpeakers;
 
-  function getSpeakers(positional
+  function getSpeakers(params
   /*, named*/
   ) {
-    let [speaker] = positional;
+    let [speaker] = params;
     return `${speaker}`;
   }
 
@@ -1600,7 +1671,7 @@
 
   var _default = _object.default.extend({
     fullName: (0, _object.computed)('firstName', 'lastName', function () {
-      return `${this.get('lastName')} ${this.get('firstName')}`;
+      return `${this.lastName} ${this.firstName}`;
     })
   });
 
@@ -1708,17 +1779,22 @@
   });
 
   Router.map(function () {
-    this.route('meetings');
     this.route('speakers', function () {
+      this.route('create');
       this.route('detail', {
         path: '/:id'
       });
-      this.route('create');
       this.route('edit', {
         path: '/:id/edit'
       });
     });
-    this.route('books');
+    this.route('books', function () {
+      this.route('create');
+      this.route('detail', {
+        path: '/:id'
+      });
+    });
+    this.route('meetings');
     this.route('404', {
       path: '*path'
     });
@@ -1751,6 +1827,37 @@
 
     model() {
       return this.dataService.getBooksData();
+    }
+
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/routes/books/create", ["exports", "@ember/routing/route"], function (_exports, _route) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  class BooksCreateRoute extends _route.default {}
+
+  _exports.default = BooksCreateRoute;
+});
+;define("juniormax/routes/books/detail", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _route.default.extend({
+    dataService: (0, _service.inject)('data'),
+
+    model(params) {
+      return this.dataService.getBookData(params.id);
     }
 
   });
@@ -1829,6 +1936,19 @@
 
   var _default = _route.default.extend({
     dataService: (0, _service.inject)('data'),
+    actions: {
+      async deleteSpeaker(speaker) {
+        try {
+          await this.dataService.deleteSpeaker(speaker);
+          this.transitionToPoute('speakers.index');
+        } catch (e) {
+          this.transitionToRoute('404', {
+            error: 'Connection faild'
+          });
+        }
+      }
+
+    },
 
     model(_ref) {
       let {
@@ -1940,14 +2060,40 @@
       this._super(...arguments);
 
       this.set('speakers', (0, _array.A)());
+      this.set('books', (0, _array.A)());
     },
 
     getMeetingsData() {
       return fetch(`${_environment.default.backendURL}/meettings`).then(response => response.json());
     },
 
-    getBooksData() {
-      return fetch(`${_environment.default.backendURL}/books`).then(response => response.json());
+    async getBooksData() {
+      let response = await fetch(`${_environment.default.backendURL}/books`);
+      let books = await response.json();
+      this.get('books').clear();
+      this.get('books').pushObjects(books);
+      return this.get('books');
+    },
+
+    getBookData(id) {
+      return this.get('books').find(book => book.id === parseInt(id));
+    },
+
+    async createBook(book) {
+      return await fetch(`${_environment.default.backendURL}/books`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(book)
+      });
+    },
+
+    deleteBook(book) {
+      this.get('books').removeObject(book);
+      return fetch(`${_environment.default.backendURL}/books/${book.id}`, {
+        method: 'DELETE'
+      });
     },
 
     async getSpeakersData() {
@@ -1959,7 +2105,7 @@
     },
 
     getSpeakerData(id) {
-      return this.get('speakers').find(speaker => speaker.id === parseInt(id));
+      return this.speakers.find(speaker => speaker.id === parseInt(id));
     },
 
     deleteSpeaker(speaker) {
@@ -1969,8 +2115,8 @@
       });
     },
 
-    createSpeaker(speaker) {
-      return fetch(`${_environment.default.backendURL}/speakers`, {
+    async createSpeaker(speaker) {
+      return await fetch(`${_environment.default.backendURL}/speakers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -2075,9 +2221,60 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "XirSGXv2",
-    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n  \"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Книги\"],[13],[1,\"\\n  \"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить книгу\"],[14,4,\"button\"],[12],[1,\"\\n        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n          \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2 search-long\"],[14,\"placeholder\",\"Найти по полям\"],[14,\"aria-label\",\"Найти по полям\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2\"],[14,\"placeholder\",\"Поиск по тегам\"],[14,\"aria-label\",\"Найти по тегам\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Поиск\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n  \"],[13],[1,\"\\n\\n\\n  \"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3 fix-margin\"],[12],[1,\"\\n\"],[42,[28,[37,1],[[28,[37,1],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"    \"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n      \"],[10,0],[14,0,\"card\"],[12],[1,\"\\n        \"],[10,\"img\"],[15,\"src\",[28,[37,2],[[30,1,[\"img\"]]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n        \"],[10,0],[14,0,\"card-header\"],[12],[1,\"\\n\\n          \"],[10,\"h5\"],[14,0,\"card-title\"],[12],[1,[28,[35,2],[[30,1,[\"title\"]]],null]],[13],[1,\"\\n\\n        \"],[13],[1,\"\\n        \"],[10,\"ul\"],[14,0,\"list-group list-group-flush\"],[12],[1,\"\\n          \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Автор\"],[13],[1,\": \"],[1,[28,[35,2],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Количество страниц\"],[13],[1,\": \"],[1,[28,[35,2],[[30,1,[\"pages\"]]],null]],[13],[1,\"\\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Теги\"],[13],[1,\": \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#суперкгнига\"],[13],[13],[1,\", \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#программирование\"],[13],[13],[13],[1,\"\\n          \"],[13],[1,\"\\n          \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n              \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n                Рейтинг:\\n              \"],[13],[1,\"\\n              \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n                  \"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[15,5,[29,[\"width:\",[28,[37,2],[[30,1,[\"progress\"]]],null]]]],[14,\"aria-valuenow\",\"25\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,[28,[35,2],[[30,1,[\"progress\"]]],null]],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n          \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n              \"],[10,3],[14,6,\"#\"],[14,0,\"card-link line-offset\"],[12],[1,\"Описание\"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n              \"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n                \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                  \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n              \"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n                \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                  \"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n                  \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n      \"],[13],[1,\"\\n\\n    \"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\n  \"],[13],[1,\"\\n\\n\"],[13]],[\"book\"],false,[\"each\",\"-track-array\",\"get-books\"]]",
+    "id": "KAlsHC+N",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n  \"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Книги\"],[13],[1,\"\\n  \"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books.create\"]],[[\"default\"],[[[[1,\"      \"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить книгу\"],[14,4,\"button\"],[12],[1,\"\\n        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n          \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n        Add\\n      \"],[13],[1,\"\\n\"]],[]]]]],[1,\"    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2 search-long\"],[14,\"placeholder\",\"Найти по полям\"],[14,\"aria-label\",\"Найти по полям\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2\"],[14,\"placeholder\",\"Поиск по тегам\"],[14,\"aria-label\",\"Найти по тегам\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Поиск\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n  \"],[13],[1,\"\\n\\n\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\n  \"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3 fix-margin\"],[12],[1,\"\\n\"],[42,[28,[37,4],[[28,[37,4],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"    \"],[1,[28,[35,5],null,[[\"title\",\"img\",\"author\",\"pages\",\"progress\",\"idBook\",\"tagName\"],[[30,1,[\"title\"]],[30,1,[\"img\"]],[30,1,[\"author\"]],[30,1,[\"pages\"]],[30,1,[\"progress\"]],[30,1,[\"id\"]],\"\"]]]],[1,\"\\n\"]],[1]],null],[1,\"\\n  \"],[13],[1,\"\\n\\n\"],[13],[1,\"\\n\"]],[\"book\"],false,[\"link-to\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"books-item\"]]",
     "moduleName": "juniormax/templates/books.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/books/create", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "xuwTRzlO",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Book:\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"form\"],[15,\"onsubmit\",[28,[37,1],[[30,0],\"saveBook\"],null]],[12],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Название книги\",[33,3]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameAuthor:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Имя Автора\",[33,4]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"pagesBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Кол-во страниц\",[33,5]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"button\"],[14,0,\"btn-submit\"],[14,4,\"submit\"],[12],[1,\"Сохранить\"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n        \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n        \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"action\",\"input\",\"nameBook\",\"nameAuthor\",\"pagesBook\"]]",
+    "moduleName": "juniormax/templates/books/create.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/books/detail", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "iX1r6wqM",
+    "block": "[[[10,0],[14,0,\"slide-out\"],[14,5,\"padding-bottom: 50px;\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n        \"],[10,\"img\"],[15,\"src\",[33,1,[\"img\"]]],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n        \"],[10,\"h3\"],[12],[1,[33,1,[\"title\"]]],[13],[1,\"\\n\\n        \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Edit\"],[13],[1,\"\\n        \"],[10,\"button\"],[15,\"onclick\",[28,[37,2],[[30,0],\"deleteBook\",[33,1]],null]],[14,4,\"button\"],[12],[1,\"Delete\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"model\",\"action\"]]",
+    "moduleName": "juniormax/templates/books/detail.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/components/books-item", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "7H7i39dM",
+    "block": "[[[1,\"    \"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n      \"],[10,0],[14,0,\"card\"],[12],[1,\"\\n        \"],[10,\"img\"],[15,\"src\",[28,[37,0],[[33,1]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n        \"],[10,0],[14,0,\"card-header\"],[12],[1,\"\\n\"],[6,[39,2],null,[[\"route\",\"model\"],[\"books.detail\",[33,3]]],[[\"default\"],[[[[1,\"          \"],[10,\"h5\"],[14,0,\"card-title\"],[12],[1,[28,[35,0],[[33,4]],null]],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n        \"],[10,\"ul\"],[14,0,\"list-group list-group-flush\"],[12],[1,\"\\n            \\n          \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n            \\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Автор\"],[13],[1,\": \"],[1,[28,[35,0],[[33,5]],null]],[13],[1,\"\\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Количество страниц\"],[13],[1,\": \"],[1,[28,[35,0],[[33,6]],null]],[13],[1,\"\\n            \"],[10,0],[12],[10,\"strong\"],[12],[1,\"Теги\"],[13],[1,\": \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#суперкгнига\"],[13],[13],[1,\", \"],[10,3],[14,6,\"#\"],[14,0,\"tag-link\"],[12],[10,1],[14,0,\"small\"],[12],[1,\"#программирование\"],[13],[13],[13],[1,\"\\n            \\n          \"],[13],[1,\"\\n          \"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n              \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n                Рейтинг:\\n              \"],[13],[1,\"\\n              \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n                  \"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[15,5,[29,[\"width:\",[28,[37,0],[[33,7]],null]]]],[14,\"aria-valuenow\",\"25\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,[28,[35,0],[[33,7]],null]],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n          \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"col\"],[12],[1,\"\\n              \"],[10,3],[14,6,\"#\"],[14,0,\"card-link line-offset\"],[12],[1,\"Описание\"],[13],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n              \"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n                \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                  \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n              \"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n                \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                  \"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n                  \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n                \"],[13],[1,\"\\n              \"],[13],[1,\"\\n            \"],[13],[1,\"\\n          \"],[13],[1,\"\\n        \"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"]],[],false,[\"get-books\",\"img\",\"link-to\",\"idBook\",\"title\",\"author\",\"pages\",\"progress\"]]",
+    "moduleName": "juniormax/templates/components/books-item.hbs",
     "isStrictMode": false
   });
 
@@ -2118,8 +2315,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "EJEzW5jI",
-    "block": "[[[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"First Name: \"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"First Name\",[33,2,[\"firstName\"]]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"Last Name: \"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"LastName\",[33,2,[\"lastName\"]]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn-submint\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"action\",\"input\",\"speaker\"]]",
+    "id": "gi62+ggO",
+    "block": "[[[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"First Name: \"],[1,[30,0,[\"model\",\"lastName\"]]],[1,\" \"],[1,[30,0,[\"model\",\"firstName\"]]],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"First Name\",[30,0,[\"speaker\",\"firstName\"]]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"Last Name: \"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"LastName\",[30,0,[\"speaker\",\"lastName\"]]]]]],[1,\">\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn-submint\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"action\",\"input\"]]",
     "moduleName": "juniormax/templates/components/speaker-form.hbs",
     "isStrictMode": false
   });
@@ -2237,8 +2434,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "3QTM/Yn1",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Speaker:\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[1,[28,[35,1],null,[[\"speaker\",\"onsubmit\"],[[33,2],[28,[37,3],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n        \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n        \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"speaker-form\",\"speaker\",\"action\"]]",
+    "id": "/7rFVODb",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Speaker: \"],[1,[30,0,[\"model\",\"fullName\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[1,[28,[35,1],null,[[\"speaker\",\"onsubmit\"],[[30,0,[\"speaker\"]],[28,[37,2],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n        \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n        \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"speaker-form\",\"action\"]]",
     "moduleName": "juniormax/templates/speakers/create.hbs",
     "isStrictMode": false
   });
@@ -2254,8 +2451,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "E7C2a0tP",
-    "block": "[[[10,0],[14,0,\"slide-out\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn-back\"],[14,4,\"button\"],[12],[1,\"back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n        \"],[10,\"h3\"],[12],[1,\" \"],[1,[33,1,[\"lastName\"]]],[1,\" \"],[1,[33,1,[\"firstName\"]]],[13],[1,\"\\n        \"],[10,0],[14,0,\"actions\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\",\"model\"],[\"btn-pop\",\"speakers.edit\",[33,1,[\"id\"]]]],[[\"default\"],[[[[1,\"            edit\\n\"]],[]]]]],[1,\"            \"],[10,\"button\"],[14,0,\"btn-recessed\"],[15,\"onclick\",[28,[37,2],[[30,0],\"deleteSpeaker\",[33,1]],null]],[14,4,\"button\"],[12],[1,\"delete\"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Привет!\"],[13],[1,\"\\n            \"],[10,\"h4\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n            \"],[10,\"h5\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"model\",\"action\"]]",
+    "id": "g21td8p7",
+    "block": "[[[10,0],[14,0,\"slide-out\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn-back\"],[14,4,\"button\"],[12],[1,\"back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n        \"],[10,\"h3\"],[12],[1,\" \"],[1,[30,0,[\"model\",\"lastName\"]]],[1,\" \"],[1,[30,0,[\"model\",\"firstName\"]]],[13],[1,\"\\n        \"],[10,0],[14,0,\"actions\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\",\"model\"],[\"btn-pop\",\"speakers.edit\",[30,0,[\"model\",\"id\"]]]],[[\"default\"],[[[[1,\"            edit\\n\"]],[]]]]],[1,\"            \"],[10,\"button\"],[14,0,\"btn-recessed\"],[15,\"onclick\",[28,[37,1],[[30,0],\"deleteSpeaker\",[30,0,[\"model\"]]],null]],[14,4,\"button\"],[12],[1,\"delete\"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Привет!\"],[13],[1,\"\\n            \"],[10,\"h4\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n            \"],[10,\"h5\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"action\"]]",
     "moduleName": "juniormax/templates/speakers/detail.hbs",
     "isStrictMode": false
   });
@@ -2271,8 +2468,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "pkokUtP3",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Edit Speaker: \"],[1,[33,1,[\"fullName\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"speaker\",\"onsubmit\"],[[33,1],[28,[37,3],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n            \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n            \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"model\",\"speaker-form\",\"action\"]]",
+    "id": "KK2cBnC/",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Edit Speaker: \"],[1,[30,0,[\"model\",\"fullName\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"speaker\",\"onsubmit\"],[[30,0,[\"model\"]],[28,[37,2],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n            \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n            \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"speaker-form\",\"action\"]]",
     "moduleName": "juniormax/templates/speakers/edit.hbs",
     "isStrictMode": false
   });
@@ -2371,7 +2568,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+951d8f1c"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+b4e070a1"});
           }
         
 //# sourceMappingURL=juniormax.map

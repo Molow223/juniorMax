@@ -6,6 +6,7 @@ export default Service.extend({
   init() {
     this._super(...arguments);
     this.set('speakers', A());
+    this.set('books', A());
   },
 
   getMeetingsData() {
@@ -14,8 +15,32 @@ export default Service.extend({
     );
   },
 
-  getBooksData() {
-    return fetch(`${ENV.backendURL}/books`).then((response) => response.json());
+  async getBooksData() {
+    let response = await fetch(`${ENV.backendURL}/books`);
+    let books = await response.json();
+    this.get('books').clear();
+    this.get('books').pushObjects(books);
+    return this.get('books');
+  },
+
+  getBookData(id) {
+    return this.get('books').find((book) => book.id === parseInt(id));
+  },
+
+  async createBook(book) {
+    return await fetch(`${ENV.backendURL}/books`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(book),
+    });
+  },
+  deleteBook(book) {
+    this.get('books').removeObject(book);
+    return fetch(`${ENV.backendURL}/books/${book.id}`, {
+      method: 'DELETE',
+    });
   },
 
   async getSpeakersData() {
@@ -27,7 +52,7 @@ export default Service.extend({
   },
 
   getSpeakerData(id) {
-    return this.get('speakers').find((speaker) => speaker.id === parseInt(id));
+    return this.speakers.find((speaker) => speaker.id === parseInt(id));
   },
 
   deleteSpeaker(speaker) {
@@ -36,8 +61,8 @@ export default Service.extend({
       method: 'DELETE',
     });
   },
-  createSpeaker(speaker) {
-    return fetch(`${ENV.backendURL}/speakers`, {
+  async createSpeaker(speaker) {
+    return await fetch(`${ENV.backendURL}/speakers`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +76,7 @@ export default Service.extend({
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(speaker)
+      body: JSON.stringify(speaker),
     });
   },
-}); 
+});
