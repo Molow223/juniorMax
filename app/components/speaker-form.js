@@ -5,7 +5,7 @@ export default Component.extend({
     submitForm(e) {
       e.preventdefault();
 
-      this.onsubmit(this.speaker);
+      this.onsubmit(this.get('speaker'));
     },
   },
 });

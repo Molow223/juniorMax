@@ -5,17 +5,13 @@
             <button class="btn-back" type="button">back</button>
             {{/link-to}}
         </div>
-        <h3> {{this.model.lastName}} {{this.model.firstName}}</h3>
+        <h3>{{this.model.lastName}}</h3>
+        <h3>{{this.model.firstName}}</h3>
         <div class="actions">
             {{#link-to "speakers.edit" this.model.id class="btn-pop"}}
             edit
             {{/link-to}}
             <button class="btn-recessed" onclick={{action "deleteSpeaker" this.model}} type="button">delete</button>
-        </div>
-        <div>
-            <h3>Привет!</h3>
-            <h4>Меня зовут Максим.</h4>
-            <h5>И я разрабатываю веб-приложения!</h5>
         </div>
     </div>
 </div>

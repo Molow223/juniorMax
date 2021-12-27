@@ -7,7 +7,7 @@ export default Route.extend({
   actions: {
     async deleteSpeaker(speaker) {
       try {
-        await this.dataService.deleteSpeaker(speaker);
+        await this.get("dataService").deleteSpeaker(speaker);
         this.transitionToPoute('speakers.index');
       } catch (e) {
         this.transitionToRoute('404', { error: 'Connection faild' });

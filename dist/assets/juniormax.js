@@ -919,7 +919,7 @@
     actions: {
       submitForm(e) {
         e.preventdefault();
-        this.onsubmit(this.speaker);
+        this.onsubmit(this.get('speaker'));
       }
 
     }
@@ -1023,7 +1023,7 @@
 
   _exports.default = _default;
 });
-;define("juniormax/controllers/speakers/create", ["exports", "@ember/controller", "@ember/service", "@ember/object"], function (_exports, _controller, _service, _object) {
+;define("juniormax/controllers/speakers/create", ["exports", "@ember/controller", "@ember/service", "@ember/object", "juniormax/components/speaker-form"], function (_exports, _controller, _service, _object, _speakerForm) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -1036,14 +1036,14 @@
       this._super(...arguments);
 
       this.set('speaker', _object.default.create());
-      this.speaker.set('firstName', '');
-      this.speaker.set('lastName', '');
+      this.get('speaker').set('firstName', '');
+      this.get('speaker').set('lastName', '');
     },
 
     dataService: (0, _service.inject)('data'),
     actions: {
       async saveSpeaker(speaker) {
-        await this.dataService.createSpeaker(speaker);
+        await this.get("dataService").createSpeaker(speaker);
         this.transitionToRoute('speakers.index');
       }
 
@@ -1085,11 +1085,19 @@
     dataService: (0, _service.inject)('data'),
     actions: {
       async saveSpeaker(speaker) {
-        await this.dataService.updateSpeaker(speaker);
+        await this.get("dataService").createSpeaker(speaker);
         this.transitionToRoute('speakers.index');
       }
 
+    },
+
+    model(_ref) {
+      let {
+        id
+      } = _ref;
+      return this.get("dataService").getSpeaker(id);
     }
+
   });
 
   _exports.default = _default;
@@ -1907,7 +1915,7 @@
     dataService: (0, _service.inject)('data'),
 
     model() {
-      return this.dataService.getSpeakersData();
+      return this.get("dataService").getSpeakersData();
     }
 
   });
@@ -1939,7 +1947,7 @@
     actions: {
       async deleteSpeaker(speaker) {
         try {
-          await this.dataService.deleteSpeaker(speaker);
+          await this.get("dataService").deleteSpeaker(speaker);
           this.transitionToPoute('speakers.index');
         } catch (e) {
           this.transitionToRoute('404', {
@@ -2238,8 +2246,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "xuwTRzlO",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Book:\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"form\"],[15,\"onsubmit\",[28,[37,1],[[30,0],\"saveBook\"],null]],[12],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Название книги\",[33,3]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameAuthor:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Имя Автора\",[33,4]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"pagesBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Кол-во страниц\",[33,5]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"button\"],[14,0,\"btn-submit\"],[14,4,\"submit\"],[12],[1,\"Сохранить\"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n        \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n        \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"action\",\"input\",\"nameBook\",\"nameAuthor\",\"pagesBook\"]]",
+    "id": "VpHEvkNR",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Book:\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"form\"],[15,\"onsubmit\",[28,[37,1],[[30,0],\"saveBook\"],null]],[12],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Название книги\",[33,3]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameAuthor:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Имя Автора\",[33,4]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"pagesBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,2],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Кол-во страниц\",[33,5]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"button\"],[14,0,\"btn-submit\"],[14,4,\"submit\"],[12],[1,\"Сохранить\"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"action\",\"input\",\"nameBook\",\"nameAuthor\",\"pagesBook\"]]",
     "moduleName": "juniormax/templates/books/create.hbs",
     "isStrictMode": false
   });
@@ -2315,8 +2323,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "gi62+ggO",
-    "block": "[[[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"First Name: \"],[1,[30,0,[\"model\",\"lastName\"]]],[1,\" \"],[1,[30,0,[\"model\",\"firstName\"]]],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"First Name\",[30,0,[\"speaker\",\"firstName\"]]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"Last Name: \"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"LastName\",[30,0,[\"speaker\",\"lastName\"]]]]]],[1,\">\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn-submint\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"action\",\"input\"]]",
+    "id": "pFCqXMPc",
+    "block": "[[[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"First Name:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"First Name\",[30,0,[\"speaker\",\"firstName\"]]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"label\"],[12],[1,\"Last Name:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"LastName\",[30,0,[\"speaker\",\"lastName\"]]]]]],[1,\">\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn-submint\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"action\",\"input\"]]",
     "moduleName": "juniormax/templates/components/speaker-form.hbs",
     "isStrictMode": false
   });
@@ -2417,8 +2425,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "JqaJYCHM",
-    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить спикера\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\tAdd\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"input\"],[14,0,\"form-control mr-2 search-long search-only\"],[14,\"placeholder\",\"ФИО\"],[14,\"aria-label\",\"Спикер\"],[14,4,\"search\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3\"],[12],[1,\"\\n\"],[42,[28,[37,2],[[28,[37,2],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[28,[37,3],[[30,1,[\"img\"]]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"\"],[14,0,\"card-title\"],[12],[1,[28,[35,4],null,[[\"firstName\",\"lastName\",\"idAuthor\"],[[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"id\"]]]]]],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\t\"],[13],[1,\"\\n\\n\"],[13],[1,\"\\n\"],[46,[28,[37,6],null,null],null,null,null]],[\"speaker\"],false,[\"link-to\",\"each\",\"-track-array\",\"get-speakers\",\"speaker-item\",\"component\",\"-outlet\"]]",
+    "id": "8KWVrE+l",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить спикера\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\tAdd\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"input\"],[14,0,\"form-control mr-2 search-long search-only\"],[14,\"placeholder\",\"ФИО\"],[14,\"aria-label\",\"Спикер\"],[14,4,\"search\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3\"],[12],[1,\"\\n\"],[42,[28,[37,4],[[28,[37,4],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[28,[37,5],[[30,1,[\"img\"]]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"\"],[14,0,\"card-title\"],[12],[1,[28,[35,6],null,[[\"firstName\",\"lastName\",\"idAuthor\"],[[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"id\"]]]]]],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\t\"],[13],[1,\"\\n\"],[13],[1,\"\\n\"]],[\"speaker\"],false,[\"link-to\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"get-speakers\",\"speaker-item\"]]",
     "moduleName": "juniormax/templates/speakers.hbs",
     "isStrictMode": false
   });
@@ -2434,8 +2442,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "/7rFVODb",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Speaker: \"],[1,[30,0,[\"model\",\"fullName\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[1,[28,[35,1],null,[[\"speaker\",\"onsubmit\"],[[30,0,[\"speaker\"]],[28,[37,2],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n        \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n        \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"speaker-form\",\"action\"]]",
+    "id": "RcbZxciF",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Speaker: \"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[1,[28,[35,1],null,[[\"speaker\",\"onsubmit\"],[[33,2],[28,[37,3],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"speaker-form\",\"speaker\",\"action\"]]",
     "moduleName": "juniormax/templates/speakers/create.hbs",
     "isStrictMode": false
   });
@@ -2451,8 +2459,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "g21td8p7",
-    "block": "[[[10,0],[14,0,\"slide-out\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn-back\"],[14,4,\"button\"],[12],[1,\"back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n        \"],[10,\"h3\"],[12],[1,\" \"],[1,[30,0,[\"model\",\"lastName\"]]],[1,\" \"],[1,[30,0,[\"model\",\"firstName\"]]],[13],[1,\"\\n        \"],[10,0],[14,0,\"actions\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\",\"model\"],[\"btn-pop\",\"speakers.edit\",[30,0,[\"model\",\"id\"]]]],[[\"default\"],[[[[1,\"            edit\\n\"]],[]]]]],[1,\"            \"],[10,\"button\"],[14,0,\"btn-recessed\"],[15,\"onclick\",[28,[37,1],[[30,0],\"deleteSpeaker\",[30,0,[\"model\"]]],null]],[14,4,\"button\"],[12],[1,\"delete\"],[13],[1,\"\\n        \"],[13],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Привет!\"],[13],[1,\"\\n            \"],[10,\"h4\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n            \"],[10,\"h5\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"action\"]]",
+    "id": "QvJnaWq4",
+    "block": "[[[10,0],[14,0,\"slide-out\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn-back\"],[14,4,\"button\"],[12],[1,\"back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n        \"],[10,\"h3\"],[12],[1,[30,0,[\"model\",\"lastName\"]]],[13],[1,\"\\n        \"],[10,\"h3\"],[12],[1,[30,0,[\"model\",\"firstName\"]]],[13],[1,\"\\n        \"],[10,0],[14,0,\"actions\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\",\"model\"],[\"btn-pop\",\"speakers.edit\",[30,0,[\"model\",\"id\"]]]],[[\"default\"],[[[[1,\"            edit\\n\"]],[]]]]],[1,\"            \"],[10,\"button\"],[14,0,\"btn-recessed\"],[15,\"onclick\",[28,[37,1],[[30,0],\"deleteSpeaker\",[30,0,[\"model\"]]],null]],[14,4,\"button\"],[12],[1,\"delete\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"action\"]]",
     "moduleName": "juniormax/templates/speakers/detail.hbs",
     "isStrictMode": false
   });
@@ -2468,8 +2476,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "KK2cBnC/",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Edit Speaker: \"],[1,[30,0,[\"model\",\"fullName\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"speaker\",\"onsubmit\"],[[30,0,[\"model\"]],[28,[37,2],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h4\"],[12],[1,\"Привет!\"],[13],[1,\"\\n            \"],[10,\"h5\"],[12],[1,\"Меня зовут Максим.\"],[13],[1,\"\\n            \"],[10,\"h6\"],[12],[1,\"И я разрабатываю веб-приложения!\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"speaker-form\",\"action\"]]",
+    "id": "rc6U6UZR",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Edit Speaker: \"],[1,[33,1,[\"lastName\"]]],[1,\" \"],[1,[33,1,[\"firstName\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"speaker\",\"onsubmit\"],[[33,1],[28,[37,3],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"model\",\"speaker-form\",\"action\"]]",
     "moduleName": "juniormax/templates/speakers/edit.hbs",
     "isStrictMode": false
   });
@@ -2568,7 +2576,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+b4e070a1"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+97ed3b65"});
           }
         
 //# sourceMappingURL=juniormax.map
