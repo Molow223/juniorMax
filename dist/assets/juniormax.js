@@ -918,7 +918,7 @@
   var _default = _component.default.extend({
     actions: {
       submitForm(e) {
-        e.preventdefault();
+        e.preventDefault();
         this.onsubmit(this.get('speaker'));
       }
 
@@ -2576,7 +2576,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+97ed3b65"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+61ae0fcd"});
           }
         
 //# sourceMappingURL=juniormax.map
