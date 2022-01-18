@@ -18,13 +18,13 @@ export default Service.extend({
   async getBooksData() {
     let response = await fetch(`${ENV.backendURL}/books`);
     let books = await response.json();
-    this.get('books').clear();
-    this.get('books').pushObjects(books);
-    return this.get('books');
+    this.books.clear();
+    this.books.pushObjects(books);
+    return this.books;
   },
 
   getBookData(id) {
-    return this.get('books').find((book) => book.id === parseInt(id));
+    return this.books.find((book) => book.id === parseInt(id));
   },
 
   async createBook(book) {
@@ -37,7 +37,7 @@ export default Service.extend({
     });
   },
   deleteBook(book) {
-    this.get('books').removeObject(book);
+    this.books.removeObject(book);
     return fetch(`${ENV.backendURL}/books/${book.id}`, {
       method: 'DELETE',
     });
@@ -70,8 +70,9 @@ export default Service.extend({
       body: JSON.stringify(speaker),
     });
   },
-  updateSpeaker(speaker) {
-    return fetch(`${ENV.backendURL}/speakers/${speaker.id}`, {
+  async updateSpeaker(speaker) {
+    this.speakers.removeObject(speaker);
+    return await fetch(`${ENV.backendURL}/speakers/${speaker.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

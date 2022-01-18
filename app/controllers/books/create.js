@@ -12,7 +12,7 @@ export default Controller.extend({
   },
 
   dataService: service('data'),
-  
+
   actions: {
     async saveBook(book) {
       await this.dataService.createBook(book);

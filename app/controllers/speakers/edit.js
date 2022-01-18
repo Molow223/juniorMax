@@ -6,12 +6,19 @@ export default Controller.extend({
   dataService: service('data'),
   actions: {
     async saveSpeaker(speaker) {
-      await this.get("dataService").createSpeaker(speaker);
+      await this.dataService.updateSpeaker(speaker);
+      this.model.set('firstName', speaker.firstName);
+      this.model.set('lastName', speaker.lastName);
+      this.model.set('img', speaker.img);
 
       this.transitionToRoute('speakers.index');
     },
   },
+  /*
   model({ id }) {
     return this.get("dataService").getSpeaker(id);
-  }
+  }*/
+  /*fullName: computed('speaker.{firstName, lastName}', function(){
+    return `${this.get('model.lastName')} ${this.get('model.firstName')}`
+  })*/
 });

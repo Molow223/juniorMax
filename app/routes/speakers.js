@@ -5,6 +5,6 @@ export default Route.extend({
   dataService: service('data'),
 
   model() {
-    return this.get("dataService").getSpeakersData();
+    return this.dataService.getSpeakersData();
   },
 });

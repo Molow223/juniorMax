@@ -4,7 +4,18 @@ import { inject as service } from '@ember/service';
 export default Route.extend({
   dataService: service('data'),
 
-  model(params) {
-    return this.dataService.getBookData(params.id);
+  actions: {
+    async deleteBook(book) {
+      try {
+        await this.dataService.deleteBook(book);
+        this.transitionToPoute('books');
+      } catch (e) {
+        this.transitionToRoute('404', { error: 'Connection faild' });
+      }
+    },
+  },
+
+  model({ id }) {
+    return this.dataService.getBookData(id);
   },
 });

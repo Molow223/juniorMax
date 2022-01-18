@@ -10,6 +10,6 @@ export default Route.extend({
             firstName: '',
             lastName: '',
             img: ''});*/
-    return this.dataService.getSpeakerData(id);
-  },
+    return this.dataService.getBooksData(id);
+  }
 });

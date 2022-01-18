@@ -1,3 +1,13 @@
 import Route from '@ember/routing/route';
+import EmberObject from '@ember/object';
 
-export default class SpeakersCreateRoute extends Route {}
+export default Route.extend({
+  model() {
+    return EmberObject.create({
+      idSpeaker: '',
+      firstName: '',
+      lastName: '',
+      img: '',
+    });
+  },
+});

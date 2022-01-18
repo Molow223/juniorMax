@@ -1,3 +1,13 @@
 import Route from '@ember/routing/route';
+import EmberObject from '@ember/object';
 
-export default class BooksCreateRoute extends Route {}
+export default Route.extend({
+  model() {
+    return EmberObject.create({
+      nameBook: '',
+      nameAuthor: '',
+      pagesBook: '',
+      img: '',
+    });
+  },
+});

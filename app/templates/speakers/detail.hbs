@@ -5,10 +5,10 @@
             <button class="btn-back" type="button">back</button>
             {{/link-to}}
         </div>
-        <h3>{{this.model.lastName}}</h3>
-        <h3>{{this.model.firstName}}</h3>
+        <h3>{{model.lastName}} {{model.firstName}}</h3>
+        <img src={{model.img}} class="card-img-top" alt="Обложка автора">
         <div class="actions">
-            {{#link-to "speakers.edit" this.model.id class="btn-pop"}}
+            {{#link-to "speakers.edit" model.id class="btn-pop"}}
             edit
             {{/link-to}}
             <button class="btn-recessed" onclick={{action "deleteSpeaker" this.model}} type="button">delete</button>

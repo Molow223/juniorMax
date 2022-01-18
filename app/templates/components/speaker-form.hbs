@@ -1,12 +1,17 @@
 <form onsubmit={{action "submitForm"}}>
     <div>
         <label>First Name:</label>
-        {{input type="text" placeholder="First Name" value=this.speaker.firstName}}
+        {{input type="text" placeholder="First Name" value=firstName}}
     </div>
 
     <div>
         <label>Last Name:</label>
-        {{input type="text" placeholder="LastName" value=this.speaker.lastName}}>
+        {{input type="text" placeholder="LastName" value=lastName}}>
+    </div>
+
+    <div>
+        <label>Img:</label>
+        {{input type="text" placeholder="/1.jpg - /8.jpg" value=img}}>
     </div>
 
     <div>

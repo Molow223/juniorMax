@@ -1,25 +1,17 @@
 import Controller from '@ember/controller';
 import { inject as service } from '@ember/service';
-import EmberObject from '@ember/object';
-import speakerForm from '../../components/speaker-form';
 
 export default Controller.extend({
-  init() {
-    this._super(...arguments);
-    this.set('speaker', EmberObject.create());
-    this.get('speaker').set('firstName', '');
-    this.get('speaker').set('lastName', '');
-  },
-
   dataService: service('data'),
-  
   actions: {
     async saveSpeaker(speaker) {
-
-      await this.get("dataService").createSpeaker(speaker);
+      await this.dataService.createSpeaker(speaker);
+      this.model.set('id', speaker.id);
+      this.model.set('firstName', speaker.firstName);
+      this.model.set('lastName', speaker.lastName);
+      this.model.set('img', speaker.img);
 
       this.transitionToRoute('speakers.index');
     },
   },
-
 });
