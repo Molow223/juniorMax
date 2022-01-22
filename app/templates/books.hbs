@@ -12,6 +12,7 @@
       </button>
       {{/link-to}}
     </div>
+    
     <div class="col-md-auto">
       <form class="form-inline">
         <input class="form-control mr-2 search-long" type="search" placeholder="Найти по полям"
@@ -31,7 +32,7 @@
 
   <div class="row row-cols-1 row-cols-md-3 fix-margin">
     {{#each this.model as |book|}}
-    {{books-item title=book.title img=book.img author=book.author pages=book.pages progress=book.progress idBook=book.id tagName=''}}
+    {{books-item title=book.title img=book.img author=book.author pages=book.pages progress=book.progress id=book.id tagName=''}}
     {{/each}}
 
   </div>

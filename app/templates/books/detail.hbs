@@ -5,10 +5,15 @@
             <button type="button">Back</button>
             {{/link-to}}
         </div>
-        <img src={{model.img}} class="card-img-top" alt="Обложка книги">
-        <h3>{{model.title}}</h3>
+        <div>
+            <img src={{model.img}} class="card-img-top" alt="Обложка книги">
+            <h3>{{model.title}}</h3>
 
-        <button type="button">Edit</button>
-        <button type="button" onclick={{action "deleteBook" model}}>Delete</button>
+            {{#link-to "books.edit" model.id}}
+            <button type="button">Edit</button>
+            {{/link-to}}
+            <button type="button" onclick={{action "deleteBook" model}}>Delete</button>
+
+        </div>
     </div>
 </div>

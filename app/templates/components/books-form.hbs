@@ -1,1 +1,25 @@
-{{yield}}
+        <form onsubmit={{action "submitForm"}}>
+            <div>
+                <label>nameBook:</label>
+                {{input type="text" placeholder="Название книги" value=this.title}}
+            </div>
+            <div>
+                <label>img:</label>
+                {{input type="text" placeholder="/1-/8.jpg" value=img}}
+            </div>
+            <div>
+                <label>nameAuthor:</label>
+                {{input type="text" placeholder="Имя Автора" value=author}}
+            </div>
+            <div>
+                <label>pagesBook:</label>
+                {{input type="text" placeholder="Кол-во страниц" value=pages}}
+            </div>
+            <div>
+                <label>progress:</label>
+                {{input type="text" placeholder="Прогресс" value=progress}}
+            </div>
+            <div>
+                <button type="submit" class="btn-submit">Сохранить</button>
+            </div>
+        </form>

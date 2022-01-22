@@ -36,6 +36,16 @@ export default Service.extend({
       body: JSON.stringify(book),
     });
   },
+  async updateBook(book) {
+    this.books.removeObject(book);
+    return await fetch(`${ENV.backendURL}/books/${book.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(book),
+    });
+  },
   deleteBook(book) {
     this.books.removeObject(book);
     return fetch(`${ENV.backendURL}/books/${book.id}`, {
