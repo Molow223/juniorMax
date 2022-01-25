@@ -16,7 +16,7 @@ export default Controller.extend({
   actions: {
     async saveBook(book) {
       await this.dataService.createBook(book);
-      model.set('id', book.id);
+      this.model.set('id', book.id);
       this.model.set('title', book.title);
       this.model.set('author', book.author);
       this.model.set('pages', book.pages);

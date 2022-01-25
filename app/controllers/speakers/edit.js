@@ -7,9 +7,9 @@ export default Controller.extend({
   actions: {
     async saveSpeaker(speaker) {
       await this.dataService.updateSpeaker(speaker);
-      this.model.set('firstName', speaker.firstName);
-      this.model.set('lastName', speaker.lastName);
-      this.model.set('img', speaker.img);
+      this.set('firstName', speaker.firstName);
+      this.set('lastName', speaker.lastName);
+      this.set('img', speaker.img);
 
       this.transitionToRoute('speakers.index');
     },

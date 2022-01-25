@@ -6,12 +6,12 @@ export default Controller.extend({
     actions: {
       async saveBook(book) {
         await this.dataService.updateBook(book);
-        this.model.set('id', book.id);
-        this.model.set('title', book.title);
-        this.model.set('author', book.author);
-        this.model.set('pages', book.pages);
-        this.model.set('img', book.img);
-        this.model.set('progress', book.progress);
+        this.set('id', book.id);
+        this.set('title', book.title);
+        this.set('author', book.author);
+        this.set('pages', book.pages);
+        this.set('img', book.img);
+        this.set('progress', book.progress);
   
   
         this.transitionToRoute('books');

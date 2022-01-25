@@ -4,10 +4,11 @@ import EmberObject from '@ember/object';
 export default Route.extend({
   model() {
     return EmberObject.create({
-      nameBook: '',
-      nameAuthor: '',
-      pagesBook: '',
+      title: '',
+      author: '',
+      pages: '',
       img: '',
+      progress: '',
     });
   },
 });

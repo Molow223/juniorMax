@@ -1058,7 +1058,7 @@
     actions: {
       async saveBook(book) {
         await this.dataService.createBook(book);
-        model.set('id', book.id);
+        this.model.set('id', book.id);
         this.model.set('title', book.title);
         this.model.set('author', book.author);
         this.model.set('pages', book.pages);
@@ -1113,12 +1113,12 @@
     actions: {
       async saveBook(book) {
         await this.dataService.updateBook(book);
-        this.model.set('id', book.id);
-        this.model.set('title', book.title);
-        this.model.set('author', book.author);
-        this.model.set('pages', book.pages);
-        this.model.set('img', book.img);
-        this.model.set('progress', book.progress);
+        this.set('id', book.id);
+        this.set('title', book.title);
+        this.set('author', book.author);
+        this.set('pages', book.pages);
+        this.set('img', book.img);
+        this.set('progress', book.progress);
         this.transitionToRoute('books');
       }
 
@@ -1186,9 +1186,9 @@
     actions: {
       async saveSpeaker(speaker) {
         await this.dataService.updateSpeaker(speaker);
-        this.model.set('firstName', speaker.firstName);
-        this.model.set('lastName', speaker.lastName);
-        this.model.set('img', speaker.img);
+        this.set('firstName', speaker.firstName);
+        this.set('lastName', speaker.lastName);
+        this.set('img', speaker.img);
         this.transitionToRoute('speakers.index');
       }
 
@@ -1959,10 +1959,11 @@
   var _default = _route.default.extend({
     model() {
       return _object.default.create({
-        nameBook: '',
-        nameAuthor: '',
-        pagesBook: '',
-        img: ''
+        title: '',
+        author: '',
+        pages: '',
+        img: '',
+        progress: ''
       });
     }
 
@@ -2433,8 +2434,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "KYNPQ/NZ",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Book: \"],[1,[33,1,[\"title\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"book\",\"onSubmit\"],[[33,3],[28,[37,4],[[30,0],\"saveBook\"],null]]]]],[1,\"\\n\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"book\",\"books-form\",\"model\",\"action\"]]",
+    "id": "18imPYju",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Book: \"],[1,[33,1,[\"title\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"book\",\"onSubmit\"],[[33,3],[28,[37,4],[[30,0],\"saveBook\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"book\",\"books-form\",\"model\",\"action\"]]",
     "moduleName": "juniormax/templates/books/create.hbs",
     "isStrictMode": false
   });
@@ -2467,8 +2468,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "ZutODELe",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Name Book: lol\"],[1,[33,1,[\"title\"]]],[13],[1,\"\\n            \"],[10,\"img\"],[15,\"src\",[33,1,[\"img\"]]],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"book\",\"onSubmit\"],[[33,1],[28,[37,3],[[30,0],\"saveBook\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"model\",\"books-form\",\"action\"]]",
+    "id": "Ey3ImZHZ",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Name Book: \"],[1,[33,1,[\"title\"]]],[13],[1,\"\\n            \"],[10,\"img\"],[15,\"src\",[33,1,[\"img\"]]],[14,\"alt\",\"Обложка книги\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"book\",\"onSubmit\"],[[33,1],[28,[37,3],[[30,0],\"saveBook\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"model\",\"books-form\",\"action\"]]",
     "moduleName": "juniormax/templates/books/edit.hbs",
     "isStrictMode": false
   });
@@ -2484,8 +2485,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "wpH5NgtY",
-    "block": "[[[1,\"        \"],[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[12],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Название книги\",[30,0,[\"title\"]]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"img:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"/1-/8.jpg\",[33,2]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameAuthor:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Имя Автора\",[33,3]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"pagesBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Кол-во страниц\",[33,4]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"progress:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Прогресс\",[33,5]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"button\"],[14,0,\"btn-submit\"],[14,4,\"submit\"],[12],[1,\"Сохранить\"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n\"]],[],false,[\"action\",\"input\",\"img\",\"author\",\"pages\",\"progress\"]]",
+    "id": "NW4pc9Ks",
+    "block": "[[[1,\"        \"],[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[12],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Название книги\",[30,0,[\"title\"]]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"img:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"/1-/8.jpg\",[30,0,[\"img\"]]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"nameAuthor:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Имя Автора\",[33,2]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"pagesBook:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Кол-во страниц\",[33,3]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"label\"],[12],[1,\"progress:\"],[13],[1,\"\\n                \"],[1,[28,[35,1],null,[[\"type\",\"placeholder\",\"value\"],[\"text\",\"Прогресс\",[33,4]]]]],[1,\"\\n            \"],[13],[1,\"\\n            \"],[10,0],[12],[1,\"\\n                \"],[10,\"button\"],[14,0,\"btn-submit\"],[14,4,\"submit\"],[12],[1,\"Сохранить\"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n\"]],[],false,[\"action\",\"input\",\"author\",\"pages\",\"progress\"]]",
     "moduleName": "juniormax/templates/components/books-form.hbs",
     "isStrictMode": false
   });
@@ -2797,7 +2798,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+9d660bf9"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+8d436208"});
           }
         
 //# sourceMappingURL=juniormax.map
