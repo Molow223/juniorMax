@@ -12,14 +12,15 @@
       </button>
       {{/link-to}}
     </div>
-    
+
     <div class="col-md-auto">
       <form class="form-inline">
-        <input class="form-control mr-2 search-long" type="search" placeholder="Найти по полям"
-          aria-label="Найти по полям">
+        {{input class="form-control mr-2 search-long" type="text" placeholder="Найти по полям"
+        value=search aria-label="Найти по полям"}}
         <button class="btn btn-primary my-2" type="submit">Найти</button>
       </form>
     </div>
+
     <div class="col-md-auto">
       <form class="form-inline">
         <input class="form-control mr-2" type="search" placeholder="Поиск по тегам" aria-label="Найти по тегам">
@@ -27,14 +28,17 @@
       </form>
     </div>
   </div>
-
-{{outlet}}
-
+  {{#if isLoading}}
+		<div class="welcome-page" style="margin-top: 70px">
+    		<img src="/cubs.gif" alt="loading">
+		</div>
+	{{else}}
+    {{outlet}}
   <div class="row row-cols-1 row-cols-md-3 fix-margin">
     {{#each this.model as |book|}}
-    {{books-item title=book.title img=book.img author=book.author pages=book.pages progress=book.progress id=book.id tagName=''}}
+    {{books-item title=book.title img=book.img author=book.author pages=book.pages progress=book.progress id=book.id
+    tagName=''}}
     {{/each}}
-
   </div>
-
+  	{{/if}}
 </div>

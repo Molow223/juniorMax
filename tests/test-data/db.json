@@ -37,7 +37,7 @@
       "id": 11
     },
     {
-      "firstName": "125",
+      "firstName": "126",
       "lastName": "Robertз",
       "img": "/3.jpg",
       "id": 12
@@ -65,30 +65,6 @@
       "lastName": "Roberto",
       "img": "/3.jpg",
       "id": 41
-    },
-    {
-      "firstName": "lol",
-      "lastName": "pop",
-      "img": "/6.jpg",
-      "id": 44
-    },
-    {
-      "firstName": "kool",
-      "lastName": "Roberto",
-      "img": "/3.jpg",
-      "id": 45
-    },
-    {
-      "firstName": "fj",
-      "lastName": "Robertfgncg",
-      "img": "/7.jpg",
-      "id": 53
-    },
-    {
-      "firstName": "hytg",
-      "lastName": "lol",
-      "img": "/6.jpg",
-      "id": 54
     }
   ],
   "books": [

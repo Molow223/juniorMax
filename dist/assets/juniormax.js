@@ -103,7 +103,10 @@
     },
 
     didReceiveAttrs() {
+      this._super();
       /*this._super();*/
+
+
       const self = this;
       this.setProperties({
         id: self.get('book.id') ? self.get('book.id') : undefined,
@@ -1037,6 +1040,21 @@
 
   _exports.default = _default;
 });
+;define("juniormax/controllers/books", ["exports", "@ember/controller"], function (_exports, _controller) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    queryParams: ['search'],
+    search: ''
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/controllers/books/create", ["exports", "@ember/controller", "@ember/service", "@ember/object"], function (_exports, _controller, _service, _object) {
   "use strict";
 
@@ -1067,11 +1085,11 @@
         this.transitionToRoute('books');
       }
       /* changeNameBook(nameBook) {
-         this.set('nameBook', nameBook);
-       },
-        changeNameAuthor(nameAuthor) {
-         this.set('nameAuthor', nameAuthor);
-       },*/
+        this.set('nameBook', nameBook);
+      },
+       changeNameAuthor(nameAuthor) {
+        this.set('nameAuthor', nameAuthor);
+      },*/
 
 
     }
@@ -1123,6 +1141,21 @@
       }
 
     }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/speakers", ["exports", "@ember/controller"], function (_exports, _controller) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    queryParams: ['search'],
+    search: ''
   });
 
   _exports.default = _default;
@@ -1929,7 +1962,7 @@
 
   _exports.default = W404Route;
 });
-;define("juniormax/routes/books", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+;define("juniormax/routes/books", ["exports", "@ember/routing/route", "@ember/service", "rsvp", "@ember/runloop"], function (_exports, _route, _service, _rsvp, _runloop) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -1938,12 +1971,57 @@
   _exports.default = void 0;
 
   var _default = _route.default.extend({
+    queryParams: {
+      search: {
+        refreshModel: true
+      }
+    },
     dataService: (0, _service.inject)('data'),
 
-    model() {
-      return this.dataService.getBooksData();
-    }
+    model(_ref) {
+      let {
+        search
+      } = _ref;
+      let promise = new _rsvp.Promise((resolve, reject) => {
+        (0, _runloop.later)(async () => {
+          try {
+            let books = search ? await this.dataService.getBooksData(search) : await this.dataService.getBooksData();
+            resolve(books);
+          } catch (e) {
+            reject('Connection failed');
+          }
+        }, 1000);
+      }).then(books => {
+        this.set('controller.model', books);
+      }).finally(() => {
+        if (promise === this.modelPromise) {
+          this.set('controller.isLoading', false);
+        }
+      });
+      this.set('modelPromise', promise);
+      return {
+        isLoading: true
+      };
+    },
 
+    setupController(controller, model) {
+      this._super(...arguments);
+
+      if (this.modelPromise) {
+        controller.set('isLoading', true);
+      }
+    },
+
+    actions: {
+      refreshSpeakers() {
+        this.refresh();
+      },
+
+      loading(transition, originRoute) {
+        return false;
+      }
+
+    }
   });
 
   _exports.default = _default;
@@ -2064,7 +2142,7 @@
 
   _exports.default = _default;
 });
-;define("juniormax/routes/speakers", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+;define("juniormax/routes/speakers", ["exports", "@ember/routing/route", "@ember/service", "rsvp", "@ember/runloop"], function (_exports, _route, _service, _rsvp, _runloop) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -2073,12 +2151,57 @@
   _exports.default = void 0;
 
   var _default = _route.default.extend({
+    queryParams: {
+      search: {
+        refreshModel: true
+      }
+    },
     dataService: (0, _service.inject)('data'),
 
-    model() {
-      return this.dataService.getSpeakersData();
-    }
+    model(_ref) {
+      let {
+        search
+      } = _ref;
+      let promise = new _rsvp.Promise((resolve, reject) => {
+        (0, _runloop.later)(async () => {
+          try {
+            let speakers = search ? await this.dataService.getSpeakersData(search) : await this.dataService.getSpeakersData();
+            resolve(speakers);
+          } catch (e) {
+            reject('Connection failed');
+          }
+        }, 1000);
+      }).then(speakers => {
+        this.set('controller.model', speakers);
+      }).finally(() => {
+        if (promise === this.modelPromise) {
+          this.set('controller.isLoading', false);
+        }
+      });
+      this.set('modelPromise', promise);
+      return {
+        isLoading: true
+      };
+    },
 
+    setupController(controller, model) {
+      this._super(...arguments);
+
+      if (this.modelPromise) {
+        controller.set('isLoading', true);
+      }
+    },
+
+    actions: {
+      refreshSpeakers() {
+        this.refresh();
+      },
+
+      loading(transition, originRoute) {
+        return false;
+      }
+
+    }
   });
 
   _exports.default = _default;
@@ -2251,8 +2374,14 @@
       return fetch(`${_environment.default.backendURL}/meettings`).then(response => response.json());
     },
 
-    async getBooksData() {
-      let response = await fetch(`${_environment.default.backendURL}/books`);
+    async getBooksData(search) {
+      let queryParams = '';
+
+      if (search) {
+        queryParams = `?q=${search}`;
+      }
+
+      let response = await fetch(`${_environment.default.backendURL}/books${queryParams}`);
       let books = await response.json();
       this.books.clear();
       this.books.pushObjects(books);
@@ -2291,8 +2420,14 @@
       });
     },
 
-    async getSpeakersData() {
-      let response = await fetch(`${_environment.default.backendURL}/speakers`);
+    async getSpeakersData(search) {
+      let queryParams = '';
+
+      if (search) {
+        queryParams = `?q=${search}`;
+      }
+
+      let response = await fetch(`${_environment.default.backendURL}/speakers${queryParams}`);
       let speakers = await response.json();
       this.speakers.clear();
       this.speakers.pushObjects(speakers);
@@ -2417,8 +2552,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "zCMAhR/x",
-    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n  \"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Книги\"],[13],[1,\"\\n  \"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books.create\"]],[[\"default\"],[[[[1,\"      \"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить книгу\"],[14,4,\"button\"],[12],[1,\"\\n        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n          \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n        Add\\n      \"],[13],[1,\"\\n\"]],[]]]]],[1,\"    \"],[13],[1,\"\\n    \\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2 search-long\"],[14,\"placeholder\",\"Найти по полям\"],[14,\"aria-label\",\"Найти по полям\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2\"],[14,\"placeholder\",\"Поиск по тегам\"],[14,\"aria-label\",\"Найти по тегам\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Поиск\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n  \"],[13],[1,\"\\n\\n\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\n  \"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3 fix-margin\"],[12],[1,\"\\n\"],[42,[28,[37,4],[[28,[37,4],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"    \"],[1,[28,[35,5],null,[[\"title\",\"img\",\"author\",\"pages\",\"progress\",\"id\",\"tagName\"],[[30,1,[\"title\"]],[30,1,[\"img\"]],[30,1,[\"author\"]],[30,1,[\"pages\"]],[30,1,[\"progress\"]],[30,1,[\"id\"]],\"\"]]]],[1,\"\\n\"]],[1]],null],[1,\"\\n  \"],[13],[1,\"\\n\\n\"],[13],[1,\"\\n\"]],[\"book\"],false,[\"link-to\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"books-item\"]]",
+    "id": "mF28JSI5",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n  \"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Книги\"],[13],[1,\"\\n  \"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books.create\"]],[[\"default\"],[[[[1,\"      \"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить книгу\"],[14,4,\"button\"],[12],[1,\"\\n        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n          \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n        Add\\n      \"],[13],[1,\"\\n\"]],[]]]]],[1,\"    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"class\",\"type\",\"placeholder\",\"value\",\"aria-label\"],[\"form-control mr-2 search-long\",\"text\",\"Найти по полям\",[33,2],\"Найти по полям\"]]]],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2\"],[14,\"placeholder\",\"Поиск по тегам\"],[14,\"aria-label\",\"Найти по тегам\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Поиск\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n  \"],[13],[1,\"\\n\"],[41,[33,4],[[[1,\"\\t\\t\"],[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \\t\\t\"],[10,\"img\"],[14,\"src\",\"/cubs.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[]],[[[1,\"    \"],[46,[28,[37,6],null,null],null,null,null],[1,\"\\n  \"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3 fix-margin\"],[12],[1,\"\\n\"],[42,[28,[37,8],[[28,[37,8],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"    \"],[1,[28,[35,9],null,[[\"title\",\"img\",\"author\",\"pages\",\"progress\",\"id\",\"tagName\"],[[30,1,[\"title\"]],[30,1,[\"img\"]],[30,1,[\"author\"]],[30,1,[\"pages\"]],[30,1,[\"progress\"]],[30,1,[\"id\"]],\"\"]]]],[1,\"\\n\"]],[1]],null],[1,\"  \"],[13],[1,\"\\n\"]],[]]],[13]],[\"book\"],false,[\"link-to\",\"input\",\"search\",\"if\",\"isLoading\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"books-item\"]]",
     "moduleName": "juniormax/templates/books.hbs",
     "isStrictMode": false
   });
@@ -2562,8 +2697,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "UXyP3KBm",
-    "block": "[[[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.detail\",[33,1]]],[[\"default\"],[[[[1,\"    \\t\\t\"],[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[28,[37,2],[[33,3]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\" \\n\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"\"],[14,0,\"card-title\"],[12],[1,[28,[35,2],[[33,4]],null]],[1,\" \"],[1,[28,[35,2],[[33,5]],null]],[13],[1,\"\\n                \"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[]]]]]],[],false,[\"link-to\",\"idSpeaker\",\"get-speakers\",\"img\",\"firstName\",\"lastName\"]]",
+    "id": "bqSGHnxG",
+    "block": "[[[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n\\t\"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.edit\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\"],[10,\"img\"],[15,\"src\",[28,[37,2],[[33,3]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\"],[10,3],[14,6,\"\"],[14,0,\"card-title\"],[12],[1,[28,[35,2],[[33,4]],null]],[1,\" \"],[1,[28,[35,2],[[33,5]],null]],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"]],[]]]]],[1,\" \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"row\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.edit\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.detail\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"idSpeaker\",\"get-speakers\",\"img\",\"firstName\",\"lastName\"]]",
     "moduleName": "juniormax/templates/components/speaker-item.hbs",
     "isStrictMode": false
   });
@@ -2647,8 +2782,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "6+SW0N9E",
-    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"btn-new\",\"speakers.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить спикера\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\tAdd\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"input\"],[14,0,\"form-control mr-2 search-long search-only\"],[14,\"placeholder\",\"ФИО\"],[14,\"aria-label\",\"Спикер\"],[14,4,\"search\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3\"],[12],[1,\"\\n\"],[42,[28,[37,4],[[28,[37,4],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\\t\"],[1,[28,[35,5],null,[[\"idSpeaker\",\"firstName\",\"lastName\",\"img\"],[[30,1,[\"id\"]],[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"img\"]]]]]],[1,\"\\n\"]],[1]],null],[1,\"\\t\"],[13],[1,\"\\n\\n\"],[13],[1,\"\\n\"]],[\"speaker\"],false,[\"link-to\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"speaker-item\"]]",
+    "id": "TTY8huiF",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"btn-new\",\"speakers.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить спикера\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\tAdd\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[1,[28,[35,3],null,[[\"type\",\"class\",\"placeholder\",\"value\",\"aria-label\"],[\"text\",\"form-control mr-2 search-long search-only\",\"ФИО\",[33,4],\"Спикер\"]]]],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[41,[33,6],[[[1,\"\\t\\t\"],[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \\t\\t\"],[10,\"img\"],[14,\"src\",\"/cubs.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[]],[[[1,\"\\t\"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3\"],[12],[1,\"\\n\"],[42,[28,[37,8],[[28,[37,8],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\\t\"],[1,[28,[35,9],null,[[\"idSpeaker\",\"firstName\",\"lastName\",\"img\"],[[30,1,[\"id\"]],[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"img\"]]]]]],[1,\"\\n\"]],[1]],null],[1,\"\\t\"],[13],[1,\"\\n\"]],[]]],[13],[1,\"\\n\"]],[\"speaker\"],false,[\"link-to\",\"component\",\"-outlet\",\"input\",\"search\",\"if\",\"isLoading\",\"each\",\"-track-array\",\"speaker-item\"]]",
     "moduleName": "juniormax/templates/speakers.hbs",
     "isStrictMode": false
   });
@@ -2798,7 +2933,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+8d436208"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+74ea37d4"});
           }
         
 //# sourceMappingURL=juniormax.map

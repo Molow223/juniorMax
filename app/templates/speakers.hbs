@@ -13,19 +13,23 @@
 			</button>
 			{{/link-to}}
 		</div>
-	{{outlet}}
+		{{outlet}}
 		<div class="col-md-auto">
 			<form class="form-inline">
-				<input class="form-control mr-2 search-long search-only" type="search" placeholder="ФИО"
-					aria-label="Спикер">
+				{{input type="text" class="form-control mr-2 search-long search-only" placeholder="ФИО" value=search aria-label="Спикер"}}
 				<button class="btn btn-primary my-2" type="submit">Найти</button>
 			</form>
 		</div>
 	</div>
+	{{#if isLoading}}
+		<div class="welcome-page" style="margin-top: 70px">
+    		<img src="/cubs.gif" alt="loading">
+		</div>
+	{{else}}
 	<div class="row row-cols-1 row-cols-md-3">
 		{{#each this.model as |speaker|}}
 			{{speaker-item idSpeaker=speaker.id firstName=speaker.firstName lastName=speaker.lastName img=speaker.img}}
 		{{/each}}
 	</div>
-
+	{{/if}}
 </div>

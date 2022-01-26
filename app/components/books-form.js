@@ -21,6 +21,7 @@ export default Component.extend({
   },
 
   didReceiveAttrs() {
+    this._super();
     /*this._super();*/
     const self = this;
     this.setProperties({
@@ -32,5 +33,4 @@ export default Component.extend({
       progress: self.get('book.progress'),
     });
   },
-
 });

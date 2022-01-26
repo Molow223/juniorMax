@@ -23,11 +23,10 @@ export default Controller.extend({
       this.model.set('img', book.img);
       this.model.set('progress', book.progress);
 
-
       this.transitionToRoute('books');
     },
 
-   /* changeNameBook(nameBook) {
+    /* changeNameBook(nameBook) {
       this.set('nameBook', nameBook);
     },
 

@@ -347,6 +347,18 @@ define("juniormax/tests/unit/controllers/author/create-test", ["qunit", "ember-q
     });
   });
 });
+define("juniormax/tests/unit/controllers/books-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | books', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:books');
+      assert.ok(controller);
+    });
+  });
+});
 define("juniormax/tests/unit/controllers/books/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
   "use strict";
 
@@ -379,6 +391,18 @@ define("juniormax/tests/unit/controllers/books/edit-test", ["qunit", "ember-quni
 
     (0, _qunit.test)('it exists', function (assert) {
       let controller = this.owner.lookup('controller:books/edit');
+      assert.ok(controller);
+    });
+  });
+});
+define("juniormax/tests/unit/controllers/speakers-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | speakers', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:speakers');
       assert.ok(controller);
     });
   });

@@ -15,8 +15,12 @@ export default Service.extend({
     );
   },
 
-  async getBooksData() {
-    let response = await fetch(`${ENV.backendURL}/books`);
+  async getBooksData(search) {
+    let queryParams = '';
+    if(search) {
+      queryParams = `?q=${search}`;
+    }
+    let response = await fetch(`${ENV.backendURL}/books${queryParams}`);
     let books = await response.json();
     this.books.clear();
     this.books.pushObjects(books);
@@ -53,8 +57,12 @@ export default Service.extend({
     });
   },
 
-  async getSpeakersData() {
-    let response = await fetch(`${ENV.backendURL}/speakers`);
+  async getSpeakersData(search) {
+    let queryParams = '';
+    if (search) {
+      queryParams = `?q=${search}`;
+    }
+    let response = await fetch(`${ENV.backendURL}/speakers${queryParams}`);
     let speakers = await response.json();
     this.speakers.clear();
     this.speakers.pushObjects(speakers);
