@@ -15,6 +15,29 @@
     }
   });
 });
+;define("juniormax/adapters/application", ["exports", "ember-data", "juniormax/config/environment"], function (_exports, _emberData, _environment) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _emberData.default.JSONAPIAdapter.extend({
+    host: _environment.default.backendURL,
+
+    init() {
+      this._super(...arguments);
+
+      this.set('headers', {
+        'Content-Type': 'application/json'
+      });
+    }
+
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/app", ["exports", "@ember/application", "juniormax/resolver", "ember-load-initializers", "juniormax/config/environment"], function (_exports, _application, _resolver, _emberLoadInitializers, _environment) {
   "use strict";
 
@@ -1172,11 +1195,14 @@
     dataService: (0, _service.inject)('data'),
     actions: {
       async saveSpeaker(speaker) {
-        await this.dataService.createSpeaker(speaker);
+        /*await this.dataService.createSpeaker(speaker);
         this.model.set('id', speaker.id);
         this.model.set('firstName', speaker.firstName);
         this.model.set('lastName', speaker.lastName);
-        this.model.set('img', speaker.img);
+        this.model.set('img', speaker.img);*/
+        let newSpeaker = this.get('store').createRecord('speaker', speaker);
+        newSpeaker.serialize();
+        await newSpeaker.save();
         this.transitionToRoute('speakers.index');
       }
 
@@ -1206,7 +1232,7 @@
 
   _exports.default = _default;
 });
-;define("juniormax/controllers/speakers/edit", ["exports", "@ember/controller", "@ember/service", "@ember/object"], function (_exports, _controller, _service, _object) {
+;define("juniormax/controllers/speakers/edit", ["exports", "@ember/controller", "@ember/service"], function (_exports, _controller, _service) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -1218,23 +1244,16 @@
     dataService: (0, _service.inject)('data'),
     actions: {
       async saveSpeaker(speaker) {
-        await this.dataService.updateSpeaker(speaker);
-        this.set('firstName', speaker.firstName);
-        this.set('lastName', speaker.lastName);
-        this.set('img', speaker.img);
+        //await this.dataService.updateSpeaker(speaker);
+        let speakerModel = this.get('model');
+        speakerModel.set('firstName', speaker.firstName);
+        speakerModel.set('lastName', speaker.lastName);
+        speakerModel.set('img', speaker.img);
+        await speakerModel.save();
         this.transitionToRoute('speakers.index');
       }
 
     }
-    /*
-    model({ id }) {
-      return this.get("dataService").getSpeaker(id);
-    }*/
-
-    /*fullName: computed('speaker.{firstName, lastName}', function(){
-      return `${this.get('model.lastName')} ${this.get('model.firstName')}`
-    })*/
-
   });
 
   _exports.default = _default;
@@ -1822,6 +1841,22 @@
 
   _exports.default = _default;
 });
+;define("juniormax/models/speaker", ["exports", "ember-data"], function (_exports, _emberData) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _emberData.default.Model.extend({
+    firstName: _emberData.default.attr('string'),
+    lastName: _emberData.default.attr('string'),
+    img: _emberData.default.attr('string')
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/modifiers/create-ref", ["exports", "ember-ref-bucket/modifiers/create-ref"], function (_exports, _createRef) {
   "use strict";
 
@@ -1961,6 +1996,32 @@
   class W404Route extends _route.default {}
 
   _exports.default = W404Route;
+});
+;define("juniormax/routes/application", ["exports", "@ember/routing/route"], function (_exports, _route) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _route.default.extend({
+    actions: {
+      error(error, transition) {
+        if (transition) {
+          transition.abort();
+        }
+
+        this.intermediateTransitionTo('error', {
+          error: error.message
+        });
+        return true;
+      }
+
+    }
+  });
+
+  _exports.default = _default;
 });
 ;define("juniormax/routes/books", ["exports", "@ember/routing/route", "@ember/service", "rsvp", "@ember/runloop"], function (_exports, _route, _service, _rsvp, _runloop) {
   "use strict";
@@ -2162,44 +2223,47 @@
       let {
         search
       } = _ref;
-      let promise = new _rsvp.Promise((resolve, reject) => {
-        (0, _runloop.later)(async () => {
+
+      /*let promise = new Promise((resolve, reject) => {
+        later(async () => {
           try {
-            let speakers = search ? await this.dataService.getSpeakersData(search) : await this.dataService.getSpeakersData();
+            let speakers = search
+              ? await this.dataService.getSpeakersData(search)
+              : await this.dataService.getSpeakersData();
             resolve(speakers);
           } catch (e) {
             reject('Connection failed');
           }
         }, 1000);
-      }).then(speakers => {
-        this.set('controller.model', speakers);
-      }).finally(() => {
-        if (promise === this.modelPromise) {
-          this.set('controller.isLoading', false);
-        }
-      });
+      })
+        .then((speakers) => {
+          this.set('controller.model', speakers);
+        })
+        .finally(() => {
+          if (promise === this.modelPromise) {
+            this.set('controller.isLoading', false);
+          }
+        });
       this.set('modelPromise', promise);
-      return {
-        isLoading: true
-      };
+      return { isLoading: true };*/
+      return this.get('store').findAll('speaker');
     },
 
     setupController(controller, model) {
       this._super(...arguments);
-
-      if (this.modelPromise) {
+      /*if (this.modelPromise) {
         controller.set('isLoading', true);
-      }
+      }*/
+
     },
 
     actions: {
-      refreshSpeakers() {
-        this.refresh();
-      },
-
-      loading(transition, originRoute) {
-        return false;
+      refreshSpeakers() {//this.refresh();
       }
+      /*loading(transition, originRoute) {
+        return false;
+      },*/
+
 
     }
   });
@@ -2217,7 +2281,7 @@
   var _default = _route.default.extend({
     model() {
       return _object.default.create({
-        idSpeaker: '',
+        id: '',
         firstName: '',
         lastName: '',
         img: ''
@@ -2238,32 +2302,29 @@
 
   var _default = _route.default.extend({
     dataService: (0, _service.inject)('data'),
-    actions: {
+
+    /*actions: {
       async deleteSpeaker(speaker) {
         try {
           await this.dataService.deleteSpeaker(speaker);
           this.transitionToRoute('speakers.index');
         } catch (e) {
-          this.transitionToRoute('404', {
-            error: 'Connection faild'
-          });
+          this.transitionToRoute('404', { error: 'Connection faild' });
         }
-      }
-
-    },
-
+      },
+    },*/
     model(_ref) {
       let {
         id
       } = _ref;
-      return this.dataService.getSpeakerData(id);
+      return this.get('store').findRecord('speaker', id);
     }
 
   });
 
   _exports.default = _default;
 });
-;define("juniormax/routes/speakers/edit", ["exports", "@ember/routing/route", "@ember/service", "@ember/object"], function (_exports, _route, _service, _object) {
+;define("juniormax/routes/speakers/edit", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -2278,12 +2339,7 @@
       let {
         id
       } = _ref;
-
-      /*return EmberObject.create({
-              firstName: '',
-              lastName: '',
-              img: ''});*/
-      return this.dataService.getSpeakerData(id);
+      return this.get('store').findRecord('speaker', id);
     }
 
   });
@@ -2340,6 +2396,40 @@
       return _rest.default;
     }
   });
+});
+;define("juniormax/serializers/speaker", ["exports", "ember-data"], function (_exports, _emberData) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _emberData.default.JSONSerializer.extend({
+    normalize(model, hash) {
+      let hashCopy = Object.assign({}, hash);
+      hashCopy.attributes = {};
+      hashCopy.attributes.firstName = hashCopy.firstName;
+      hashCopy.attributes.lastName = hashCopy.lastName;
+      hashCopy.attributes.img = hashCopy.img;
+      delete hashCopy.firstName;
+      delete hashCopy.lastName;
+      delete hashCopy.img;
+      hash = {
+        data: hashCopy
+      };
+      return hash;
+    },
+
+    serialize(snapshot, options) {
+      let json = this._super(...arguments);
+
+      return json;
+    }
+
+  });
+
+  _exports.default = _default;
 });
 ;define("juniormax/services/-ensure-registered", ["exports", "@embroider/util/services/ensure-registered"], function (_exports, _ensureRegistered) {
   "use strict";
@@ -2697,8 +2787,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "bqSGHnxG",
-    "block": "[[[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n\\t\"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.edit\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\"],[10,\"img\"],[15,\"src\",[28,[37,2],[[33,3]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\"],[10,3],[14,6,\"\"],[14,0,\"card-title\"],[12],[1,[28,[35,2],[[33,4]],null]],[1,\" \"],[1,[28,[35,2],[[33,5]],null]],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"]],[]]]]],[1,\" \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"row\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.edit\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.detail\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"idSpeaker\",\"get-speakers\",\"img\",\"firstName\",\"lastName\"]]",
+    "id": "Z4aBbdVg",
+    "block": "[[[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n\\t\"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.detail\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\"],[10,\"img\"],[15,\"src\",[28,[37,2],[[33,3]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\"],[10,3],[14,6,\"\"],[14,0,\"card-title\"],[12],[1,[28,[35,2],[[33,4]],null]],[1,\" \"],[1,[28,[35,2],[[33,5]],null]],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"]],[]]]]],[1,\" \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"row\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.detail\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[6,[39,0],null,[[\"route\",\"model\"],[\"speakers.detail\",[33,1]]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"id\",\"get-speakers\",\"img\",\"firstName\",\"lastName\"]]",
     "moduleName": "juniormax/templates/components/speaker-item.hbs",
     "isStrictMode": false
   });
@@ -2782,8 +2872,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "TTY8huiF",
-    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"btn-new\",\"speakers.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить спикера\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\tAdd\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[1,[28,[35,3],null,[[\"type\",\"class\",\"placeholder\",\"value\",\"aria-label\"],[\"text\",\"form-control mr-2 search-long search-only\",\"ФИО\",[33,4],\"Спикер\"]]]],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[41,[33,6],[[[1,\"\\t\\t\"],[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \\t\\t\"],[10,\"img\"],[14,\"src\",\"/cubs.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[]],[[[1,\"\\t\"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3\"],[12],[1,\"\\n\"],[42,[28,[37,8],[[28,[37,8],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\\t\"],[1,[28,[35,9],null,[[\"idSpeaker\",\"firstName\",\"lastName\",\"img\"],[[30,1,[\"id\"]],[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"img\"]]]]]],[1,\"\\n\"]],[1]],null],[1,\"\\t\"],[13],[1,\"\\n\"]],[]]],[13],[1,\"\\n\"]],[\"speaker\"],false,[\"link-to\",\"component\",\"-outlet\",\"input\",\"search\",\"if\",\"isLoading\",\"each\",\"-track-array\",\"speaker-item\"]]",
+    "id": "83r7/bKR",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"btn-new\",\"speakers.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить спикера\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\tAdd\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[1,[28,[35,3],null,[[\"type\",\"class\",\"placeholder\",\"value\",\"aria-label\"],[\"text\",\"form-control mr-2 search-long search-only\",\"ФИО\",[33,4],\"Спикер\"]]]],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[41,[33,6],[[[1,\"\\t\\t\"],[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \\t\\t\"],[10,\"img\"],[14,\"src\",\"/cubs.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[]],[[[1,\"\\t\"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3\"],[12],[1,\"\\n\"],[42,[28,[37,8],[[28,[37,8],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\\t\"],[1,[28,[35,9],null,[[\"id\",\"firstName\",\"lastName\",\"img\"],[[30,1,[\"id\"]],[30,1,[\"firstName\"]],[30,1,[\"lastName\"]],[30,1,[\"img\"]]]]]],[1,\"\\n\"]],[1]],null],[1,\"\\t\"],[13],[1,\"\\n\"]],[]]],[13],[1,\"\\n\"]],[\"speaker\"],false,[\"link-to\",\"component\",\"-outlet\",\"input\",\"search\",\"if\",\"isLoading\",\"each\",\"-track-array\",\"speaker-item\"]]",
     "moduleName": "juniormax/templates/speakers.hbs",
     "isStrictMode": false
   });
@@ -2833,8 +2923,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "kxusm3sF",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Edit Speaker: \"],[1,[33,1,[\"lastName\"]]],[1,\" \"],[1,[33,1,[\"firstName\"]]],[13],[1,\"\\n            \"],[10,\"img\"],[15,\"src\",[33,1,[\"img\"]]],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка автора\"],[12],[13],[1,\"\\n\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"speaker\",\"onSubmit\"],[[33,1],[28,[37,3],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"model\",\"speaker-form\",\"action\"]]",
+    "id": "+xu3pQaO",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Edit Speaker: \"],[1,[33,1,[\"lastName\"]]],[1,\" \"],[1,[33,2,[\"firstName\"]]],[13],[1,\"\\n            \"],[10,\"img\"],[15,\"src\",[33,2,[\"img\"]]],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка автора\"],[12],[13],[1,\"\\n\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,3],null,[[\"speaker\",\"onSubmit\"],[[33,2],[28,[37,4],[[30,0],\"saveSpeaker\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"speaker\",\"model\",\"speaker-form\",\"action\"]]",
     "moduleName": "juniormax/templates/speakers/edit.hbs",
     "isStrictMode": false
   });
@@ -2933,7 +3023,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+74ea37d4"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+01e2ba3b"});
           }
         
 //# sourceMappingURL=juniormax.map

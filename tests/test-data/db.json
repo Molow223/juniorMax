@@ -2,30 +2,35 @@
   "speakers": [
     {
       "id": 1,
+      "type": "speaker",
       "firstName": "Roberto",
       "lastName": "Martin",
-      "img": "/5.jpg"
+      "img": "/4.jpg"
     },
     {
       "id": 2,
-      "firstName": "L.C.",
+      "type": "speaker",
+      "firstName": "L.C.9",
       "lastName": "Lewis",
       "img": "/6.jpg"
     },
     {
       "id": 3,
-      "firstName": "Edgar",
+      "type": "speaker",
+      "firstName": "EdgarO",
       "lastName": "Poe",
       "img": "/7.jpg"
     },
     {
       "id": 4,
+      "type": "speaker",
       "firstName": "Alex",
       "lastName": "Push",
       "img": "/8.jpg"
     },
     {
       "id": 5,
+      "type": "speaker",
       "firstName": "Robert",
       "lastName": "Martin",
       "img": "/5.jpg"
@@ -34,37 +39,50 @@
       "firstName": "Robertcgnc",
       "lastName": "Roberto",
       "img": "/5.jpg",
+      "type": "speaker",
       "id": 11
     },
     {
       "firstName": "126",
       "lastName": "Robertз",
       "img": "/3.jpg",
+      "type": "speaker",
       "id": 12
     },
     {
       "firstName": "dvv",
       "lastName": "си",
       "img": "/4.jpg",
+      "type": "speaker",
       "id": 13
     },
     {
       "firstName": "Martin0",
       "lastName": "dglkd",
       "img": "/7.jpg",
+      "type": "speaker",
       "id": 35
     },
     {
       "firstName": "L.C.8",
       "lastName": "Roberto",
       "img": "/5.jpg",
+      "type": "speaker",
       "id": 36
     },
     {
       "firstName": "Edgarhfthhf",
       "lastName": "Roberto",
       "img": "/3.jpg",
+      "type": "speaker",
       "id": 41
+    },
+    {
+      "firstName": "bcb",
+      "lastName": "vnvn",
+      "img": "/4.jpg",
+      "type": "speaker",
+      "id": 42
     }
   ],
   "books": [
@@ -80,7 +98,7 @@
       "id": 3,
       "title": "Про кубики",
       "author": "NameAuthor8",
-      "pages": "78",
+      "pages": "789",
       "img": "/3.jpg",
       "progress": "32%"
     },

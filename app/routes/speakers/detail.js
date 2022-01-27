@@ -4,7 +4,7 @@ import { inject as service } from '@ember/service';
 export default Route.extend({
   dataService: service('data'),
 
-  actions: {
+  /*actions: {
     async deleteSpeaker(speaker) {
       try {
         await this.dataService.deleteSpeaker(speaker);
@@ -13,9 +13,9 @@ export default Route.extend({
         this.transitionToRoute('404', { error: 'Connection faild' });
       }
     },
-  },
+  },*/
 
   model({ id }) {
-    return this.dataService.getSpeakerData(id);
-  },
+    return this.get('store').findRecord('speaker', id);
+  }
 });

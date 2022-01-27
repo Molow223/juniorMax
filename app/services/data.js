@@ -17,7 +17,7 @@ export default Service.extend({
 
   async getBooksData(search) {
     let queryParams = '';
-    if(search) {
+    if (search) {
       queryParams = `?q=${search}`;
     }
     let response = await fetch(`${ENV.backendURL}/books${queryParams}`);

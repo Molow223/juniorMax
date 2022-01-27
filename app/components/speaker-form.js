@@ -17,6 +17,7 @@ export default Component.extend({
       });
     },
   },
+  
   didReceiveAttrs() {
     this._super();
     /*this._super();

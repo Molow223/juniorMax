@@ -28,7 +28,7 @@
 	{{else}}
 	<div class="row row-cols-1 row-cols-md-3">
 		{{#each this.model as |speaker|}}
-			{{speaker-item idSpeaker=speaker.id firstName=speaker.firstName lastName=speaker.lastName img=speaker.img}}
+			{{speaker-item id=speaker.id firstName=speaker.firstName lastName=speaker.lastName img=speaker.img}}
 		{{/each}}
 	</div>
 	{{/if}}
