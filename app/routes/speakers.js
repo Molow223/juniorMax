@@ -34,7 +34,7 @@ export default Route.extend({
       });
     this.set('modelPromise', promise);
     return { isLoading: true };*/
-    return this.get('store').findAll('speaker');
+    return this.store.findAll('speaker');
   },
 
   setupController(controller, model) {

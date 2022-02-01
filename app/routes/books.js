@@ -12,7 +12,7 @@ export default Route.extend({
   dataService: service('data'),
 
   model({ search }) {
-    let promise = new Promise((resolve, reject) => {
+    /*let promise = new Promise((resolve, reject) => {
       later(async () => {
         try {
           let books = search
@@ -33,22 +33,23 @@ export default Route.extend({
         }
       });
     this.set('modelPromise', promise);
-    return { isLoading: true };
+    return { isLoading: true };*/
+    return this.store.findAll('book');
   },
 
   setupController(controller, model) {
     this._super(...arguments);
-    if (this.modelPromise) {
+    /*if (this.modelPromise) {
       controller.set('isLoading', true);
-    }
+    }*/
   },
 
   actions: {
     refreshSpeakers() {
-      this.refresh();
+      //this.refresh();
     },
-    loading(transition, originRoute) {
+    /*loading(transition, originRoute) {
       return false;
-    },
+    },*/
   },
 });

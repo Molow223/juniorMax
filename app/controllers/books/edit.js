@@ -5,13 +5,16 @@ export default Controller.extend({
   dataService: service('data'),
   actions: {
     async saveBook(book) {
-      await this.dataService.updateBook(book);
-      this.set('id', book.id);
-      this.set('title', book.title);
-      this.set('author', book.author);
-      this.set('pages', book.pages);
-      this.set('img', book.img);
-      this.set('progress', book.progress);
+      //await this.dataService.updateBook(book);
+      let bookModel = this.model;
+      //bookModel.set('id', book.id);
+      bookModel.set('title', book.title);
+      bookModel.set('author', book.author);
+      bookModel.set('pages', book.pages);
+      bookModel.set('img', book.img);
+      bookModel.set('progress', book.progress);
+
+      await bookModel.save();
 
       this.transitionToRoute('books');
     },

@@ -4,7 +4,6 @@ import EmberObject from '@ember/object';
 export default Route.extend({
   model() {
     return EmberObject.create({
-      id: '',
       firstName: '',
       lastName: '',
       img: '',

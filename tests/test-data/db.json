@@ -4,27 +4,20 @@
       "id": 1,
       "type": "speaker",
       "firstName": "Roberto",
-      "lastName": "Martin",
-      "img": "/4.jpg"
-    },
-    {
-      "id": 2,
-      "type": "speaker",
-      "firstName": "L.C.9",
-      "lastName": "Lewis",
+      "lastName": "Martinu",
       "img": "/6.jpg"
     },
     {
       "id": 3,
       "type": "speaker",
-      "firstName": "EdgarO",
+      "firstName": "Edgar",
       "lastName": "Poe",
-      "img": "/7.jpg"
+      "img": "/2.jpg"
     },
     {
       "id": 4,
       "type": "speaker",
-      "firstName": "Alex",
+      "firstName": "Alexo8",
       "lastName": "Push",
       "img": "/8.jpg"
     },
@@ -83,32 +76,40 @@
       "img": "/4.jpg",
       "type": "speaker",
       "id": 42
+    },
+    {
+      "firstName": "vc",
+      "lastName": "Roberto",
+      "img": "/6.jpg",
+      "type": "speaker",
+      "id": 43
+    },
+    {
+      "firstName": "Roberto",
+      "lastName": "Doni",
+      "img": "/2.jpg",
+      "type": "speaker",
+      "id": 44
     }
   ],
   "books": [
     {
-      "id": 2,
-      "title": "Чебурашка",
-      "author": "NameAuthor23",
-      "pages": "456",
-      "img": "/2.jpg",
-      "progress": "50%"
-    },
-    {
       "id": 3,
-      "title": "Про кубики",
+      "title": "Про кубики 23",
       "author": "NameAuthor8",
       "pages": "789",
       "img": "/3.jpg",
-      "progress": "32%"
+      "progress": "32%",
+      "type": "book"
     },
     {
       "id": 4,
       "title": "Чип и Дейл",
       "author": "NameAuthor4",
       "pages": "147",
-      "img": "/4.jpg",
-      "progress": "68%"
+      "img": "/6.jpg",
+      "progress": "68%",
+      "type": "book"
     },
     {
       "id": 5,
@@ -116,7 +117,8 @@
       "author": "NameAuthor4",
       "pages": "147",
       "img": "/4.jpg",
-      "progress": "68%"
+      "progress": "68%",
+      "type": "book"
     },
     {
       "id": 6,
@@ -124,7 +126,8 @@
       "author": "NameAuthor4",
       "pages": "147",
       "img": "/4.jpg",
-      "progress": "68%"
+      "progress": "68%",
+      "type": "book"
     },
     {
       "title": "Frenk",
@@ -132,7 +135,8 @@
       "pages": "230",
       "img": "/5.jpg",
       "progress": "52",
-      "id": 12
+      "id": 12,
+      "type": "book"
     },
     {
       "title": "kool",
@@ -140,7 +144,8 @@
       "pages": "12",
       "img": "/4.jpg",
       "progress": "13",
-      "id": 13
+      "id": 13,
+      "type": "book"
     },
     {
       "title": "pop",
@@ -148,7 +153,8 @@
       "pages": "52",
       "img": "/5.jpg",
       "progress": "23",
-      "id": 14
+      "id": 14,
+      "type": "book"
     },
     {
       "title": "Roberto",
@@ -156,7 +162,8 @@
       "pages": "25",
       "img": "/6.jpg",
       "progress": "69",
-      "id": 15
+      "id": 15,
+      "type": "book"
     },
     {
       "title": "Edgarhfthhf",
@@ -164,7 +171,8 @@
       "pages": "56",
       "img": "/4.jpg",
       "progress": "36",
-      "id": 16
+      "id": 16,
+      "type": "book"
     },
     {
       "title": "hytg",
@@ -172,7 +180,8 @@
       "pages": "52",
       "img": "/7.jpg",
       "progress": "9667",
-      "id": 17
+      "id": 17,
+      "type": "book"
     },
     {
       "title": "vncvn",
@@ -180,7 +189,8 @@
       "pages": "85",
       "img": "/4.jpg",
       "progress": "69",
-      "id": 18
+      "id": 18,
+      "type": "book"
     }
   ],
   "meettings": [

@@ -1088,23 +1088,18 @@
 
   var _default = _controller.default.extend({
     dataService: (0, _service.inject)('data'),
-
-    /*init() {
-      this._super(...arguments);
-      this.set('book', EmberObject.create());
-      this.book.set('title', '');
-      this.book.set('author', '');
-      this.book.set('pages', '');
-    },*/
     actions: {
       async saveBook(book) {
-        await this.dataService.createBook(book);
+        /*await this.dataService.createBook(book);
         this.model.set('id', book.id);
         this.model.set('title', book.title);
         this.model.set('author', book.author);
         this.model.set('pages', book.pages);
         this.model.set('img', book.img);
-        this.model.set('progress', book.progress);
+        this.model.set('progress', book.progress);*/
+        let newBook = this.store.createRecord('book', book);
+        newBook.serialize();
+        await newBook.save();
         this.transitionToRoute('books');
       }
       /* changeNameBook(nameBook) {
@@ -1153,13 +1148,15 @@
     dataService: (0, _service.inject)('data'),
     actions: {
       async saveBook(book) {
-        await this.dataService.updateBook(book);
-        this.set('id', book.id);
-        this.set('title', book.title);
-        this.set('author', book.author);
-        this.set('pages', book.pages);
-        this.set('img', book.img);
-        this.set('progress', book.progress);
+        //await this.dataService.updateBook(book);
+        let bookModel = this.model; //bookModel.set('id', book.id);
+
+        bookModel.set('title', book.title);
+        bookModel.set('author', book.author);
+        bookModel.set('pages', book.pages);
+        bookModel.set('img', book.img);
+        bookModel.set('progress', book.progress);
+        await bookModel.save();
         this.transitionToRoute('books');
       }
 
@@ -1200,7 +1197,7 @@
         this.model.set('firstName', speaker.firstName);
         this.model.set('lastName', speaker.lastName);
         this.model.set('img', speaker.img);*/
-        let newSpeaker = this.get('store').createRecord('speaker', speaker);
+        let newSpeaker = this.store.createRecord('speaker', speaker);
         newSpeaker.serialize();
         await newSpeaker.save();
         this.transitionToRoute('speakers.index');
@@ -1245,7 +1242,7 @@
     actions: {
       async saveSpeaker(speaker) {
         //await this.dataService.updateSpeaker(speaker);
-        let speakerModel = this.get('model');
+        let speakerModel = this.model;
         speakerModel.set('firstName', speaker.firstName);
         speakerModel.set('lastName', speaker.lastName);
         speakerModel.set('img', speaker.img);
@@ -1841,6 +1838,24 @@
 
   _exports.default = _default;
 });
+;define("juniormax/models/book", ["exports", "ember-data"], function (_exports, _emberData) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _emberData.default.Model.extend({
+    title: _emberData.default.attr('string'),
+    author: _emberData.default.attr('string'),
+    pages: _emberData.default.attr('string'),
+    img: _emberData.default.attr('string'),
+    progress: _emberData.default.attr('string')
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/models/speaker", ["exports", "ember-data"], function (_exports, _emberData) {
   "use strict";
 
@@ -2043,44 +2058,47 @@
       let {
         search
       } = _ref;
-      let promise = new _rsvp.Promise((resolve, reject) => {
-        (0, _runloop.later)(async () => {
+
+      /*let promise = new Promise((resolve, reject) => {
+        later(async () => {
           try {
-            let books = search ? await this.dataService.getBooksData(search) : await this.dataService.getBooksData();
+            let books = search
+              ? await this.dataService.getBooksData(search)
+              : await this.dataService.getBooksData();
             resolve(books);
           } catch (e) {
             reject('Connection failed');
           }
         }, 1000);
-      }).then(books => {
-        this.set('controller.model', books);
-      }).finally(() => {
-        if (promise === this.modelPromise) {
-          this.set('controller.isLoading', false);
-        }
-      });
+      })
+        .then((books) => {
+          this.set('controller.model', books);
+        })
+        .finally(() => {
+          if (promise === this.modelPromise) {
+            this.set('controller.isLoading', false);
+          }
+        });
       this.set('modelPromise', promise);
-      return {
-        isLoading: true
-      };
+      return { isLoading: true };*/
+      return this.store.findAll('book');
     },
 
     setupController(controller, model) {
       this._super(...arguments);
-
-      if (this.modelPromise) {
+      /*if (this.modelPromise) {
         controller.set('isLoading', true);
-      }
+      }*/
+
     },
 
     actions: {
-      refreshSpeakers() {
-        this.refresh();
-      },
-
-      loading(transition, originRoute) {
-        return false;
+      refreshSpeakers() {//this.refresh();
       }
+      /*loading(transition, originRoute) {
+        return false;
+      },*/
+
 
     }
   });
@@ -2120,32 +2138,29 @@
 
   var _default = _route.default.extend({
     dataService: (0, _service.inject)('data'),
-    actions: {
+
+    /*actions: {
       async deleteBook(book) {
         try {
           await this.dataService.deleteBook(book);
           this.transitionToPoute('books');
         } catch (e) {
-          this.transitionToRoute('404', {
-            error: 'Connection faild'
-          });
+          this.transitionToRoute('404', { error: 'Connection faild' });
         }
-      }
-
-    },
-
+      },
+    },*/
     model(_ref) {
       let {
         id
       } = _ref;
-      return this.dataService.getBookData(id);
+      return this.store.findRecord('book', id);
     }
 
   });
 
   _exports.default = _default;
 });
-;define("juniormax/routes/books/edit", ["exports", "@ember/routing/route", "@ember/service", "@ember/object"], function (_exports, _route, _service, _object) {
+;define("juniormax/routes/books/edit", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -2160,12 +2175,7 @@
       let {
         id
       } = _ref;
-
-      /*return EmberObject.create({
-              firstName: '',
-              lastName: '',
-              img: ''});*/
-      return this.dataService.getBookData(id);
+      return this.store.findRecord('book', id);
     }
 
   });
@@ -2246,7 +2256,7 @@
         });
       this.set('modelPromise', promise);
       return { isLoading: true };*/
-      return this.get('store').findAll('speaker');
+      return this.store.findAll('speaker');
     },
 
     setupController(controller, model) {
@@ -2281,7 +2291,6 @@
   var _default = _route.default.extend({
     model() {
       return _object.default.create({
-        id: '',
         firstName: '',
         lastName: '',
         img: ''
@@ -2317,7 +2326,7 @@
       let {
         id
       } = _ref;
-      return this.get('store').findRecord('speaker', id);
+      return this.store.findRecord('speaker', id);
     }
 
   });
@@ -2339,7 +2348,7 @@
       let {
         id
       } = _ref;
-      return this.get('store').findRecord('speaker', id);
+      return this.store.findRecord('speaker', id);
     }
 
   });
@@ -2397,6 +2406,45 @@
     }
   });
 });
+;define("juniormax/serializers/book", ["exports", "ember-data"], function (_exports, _emberData) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _emberData.default.JSONSerializer.extend({
+    normalize(model, hash) {
+      let hashCopy = Object.assign({}, hash);
+      hashCopy.attributes = {};
+      hashCopy.attributes.title = hashCopy.title;
+      hashCopy.attributes.author = hashCopy.author;
+      hashCopy.attributes.pages = hashCopy.pages;
+      hashCopy.attributes.img = hashCopy.img;
+      hashCopy.attributes.progress = hashCopy.progress;
+      delete hashCopy.title;
+      delete hashCopy.author;
+      delete hashCopy.pages;
+      delete hashCopy.img;
+      delete hashCopy.progress;
+      hash = {
+        data: hashCopy
+      };
+      return hash;
+    },
+
+    serialize(snapshot, options) {
+      let json = this._super(...arguments);
+
+      json.type = snapshot.modelName;
+      return json;
+    }
+
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/serializers/speaker", ["exports", "ember-data"], function (_exports, _emberData) {
   "use strict";
 
@@ -2424,6 +2472,7 @@
     serialize(snapshot, options) {
       let json = this._super(...arguments);
 
+      json.type = snapshot.modelName;
       return json;
     }
 
@@ -2625,8 +2674,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "bAQd9zYC",
-    "block": "[[[1,\"\\n\\n\\t\"],[10,\"head\"],[12],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"/assets/styles.css\"],[12],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"/assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tРабочий стол\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tВстречи клуба\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tКниги\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tСпикеры\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tОставить заявку\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tЗапланировать\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2021\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"]],[],false,[\"link-to\",\"component\",\"-outlet\"]]",
+    "id": "upE1Bd+2",
+    "block": "[[[1,\"\\n\\n\\t\"],[10,\"head\"],[12],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"/assets/styles.css\"],[12],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"/assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tРабочий стол\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tВстречи клуба\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tКниги\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tСпикеры\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tОставить заявку\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tЗапланировать\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2022\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"]],[],false,[\"link-to\",\"component\",\"-outlet\"]]",
     "moduleName": "juniormax/templates/application.hbs",
     "isStrictMode": false
   });
@@ -3023,7 +3072,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+01e2ba3b"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+fb5ce34e"});
           }
         
 //# sourceMappingURL=juniormax.map

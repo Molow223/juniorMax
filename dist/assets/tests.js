@@ -455,6 +455,19 @@ define("juniormax/tests/unit/controllers/speakers/edit-test", ["qunit", "ember-q
     });
   });
 });
+define("juniormax/tests/unit/models/book-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Model | book', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let model = store.createRecord('book', {});
+      assert.ok(model);
+    });
+  });
+});
 define("juniormax/tests/unit/models/speaker-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
   "use strict";
 
@@ -630,6 +643,25 @@ define("juniormax/tests/unit/routes/speakers/index-test", ["qunit", "ember-qunit
     (0, _qunit.test)('it exists', function (assert) {
       let route = this.owner.lookup('route:speakers/index');
       assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/serializers/book-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Serializer | book', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let serializer = store.serializerFor('book');
+      assert.ok(serializer);
+    });
+    (0, _qunit.test)('it serializes records', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let record = store.createRecord('book', {});
+      let serializedRecord = record.serialize();
+      assert.ok(serializedRecord);
     });
   });
 });

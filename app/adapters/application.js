@@ -7,7 +7,7 @@ export default DS.JSONAPIAdapter.extend({
   init() {
     this._super(...arguments);
     this.set('headers', {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     });
-  }
+  },
 });

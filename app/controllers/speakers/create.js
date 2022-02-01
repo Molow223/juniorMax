@@ -12,7 +12,7 @@ export default Controller.extend({
       this.model.set('lastName', speaker.lastName);
       this.model.set('img', speaker.img);*/
 
-      let newSpeaker = this.get('store').createRecord('speaker', speaker);
+      let newSpeaker = this.store.createRecord('speaker', speaker);
       newSpeaker.serialize();
       await newSpeaker.save();
 
