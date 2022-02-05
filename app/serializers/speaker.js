@@ -1,23 +1,14 @@
 import DS from 'ember-data';
+import ApplicationSerializer from './application';
 
-export default DS.JSONSerializer.extend({
+export default ApplicationSerializer.extend({
   normalize(model, hash) {
-    let hashCopy = Object.assign({}, hash);
-    hashCopy.attributes = {};
-    hashCopy.attributes.firstName = hashCopy.firstName;
-    hashCopy.attributes.lastName = hashCopy.lastName;
-    hashCopy.attributes.img = hashCopy.img;
-    delete hashCopy.firstName;
-    delete hashCopy.lastName;
-    delete hashCopy.img;
-    hash = {
-      data: hashCopy,
-    };
+    hash = this._super(...arguments);
     return hash;
   },
-  serialize(snapshot, options) {
+ /* serialize(snapshot, options) {
     let json = this._super(...arguments);
     json.type = snapshot.modelName;
     return json;
-  },
+  },*/
 });

@@ -316,6 +316,49 @@ define("juniormax/tests/integration/helpers/get-speakers-test", ["@ember/templat
     });
   });
 });
+define("juniormax/tests/test-data/server", [], function () {
+  "use strict";
+
+  const jsonServer = require("json-server");
+
+  const server = jsonServer.create();
+  const router = jsonServer.router('tests/test-data/db.json');
+  const middlewares = jsonServer.defaults(); // Set default middlewares (logger, static, cors and no-cache)
+
+  server.use(middlewares); // Add custom routes before JSON Server router
+  //server.get('/echo', (req, res) => {
+  //  res.jsonp(req.query)
+  //})
+  // To handle POST, PUT and PATCH you need to use a body-parser
+  // You can use the one used by JSON Server
+
+  server.use(jsonServer.bodyParser);
+
+  function responseInterceptor(req, res, next) {
+    var originalSend = res.send;
+
+    res.send = function () {
+      let body = arguments[0];
+
+      if (req.method === 'DELETE') {
+        let urlSegms = req.url.split('/');
+        let idStr = urlSegms[urlSegms.length - 1];
+        let id = parseInt(idStr);
+        id = isNaN(id) ? idStr : id;
+        let newBody = Object.assign({}, JSON.parse(body));
+        newBody.id = id;
+        arguments[0] = JSON.stringify(newBody);
+      }
+
+      originalSend.apply(res, arguments);
+    };
+
+    next();
+  } // Use default router
+
+
+  server.use(responseInterceptor);
+});
 define("juniormax/tests/test-helper", ["juniormax/app", "juniormax/config/environment", "qunit", "@ember/test-helpers", "qunit-dom", "ember-qunit"], function (_app, _environment, QUnit, _testHelpers, _qunitDom, _emberQunit) {
   "use strict";
 
@@ -643,6 +686,25 @@ define("juniormax/tests/unit/routes/speakers/index-test", ["qunit", "ember-qunit
     (0, _qunit.test)('it exists', function (assert) {
       let route = this.owner.lookup('route:speakers/index');
       assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/serializers/application-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Serializer | application', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let serializer = store.serializerFor('application');
+      assert.ok(serializer);
+    });
+    (0, _qunit.test)('it serializes records', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let record = store.createRecord('application', {});
+      let serializedRecord = record.serialize();
+      assert.ok(serializedRecord);
     });
   });
 });

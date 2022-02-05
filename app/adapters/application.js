@@ -10,4 +10,15 @@ export default DS.JSONAPIAdapter.extend({
       'Content-Type': 'application/json',
     });
   },
+  buildURL(modelName, id, snapshot, requestType, query) {
+    let url = this._super(...arguments);
+
+    if(modelName ==='speaker' && requestType ==='findRecord' && id) {
+      url +='?_ember=books'
+    }
+    if(modelName ==='book' && requestType ==='findRecord' && id) {
+      url +='?_ember=reviews';
+    }
+    return url;
+  }
 });

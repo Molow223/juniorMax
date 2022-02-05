@@ -32,6 +32,20 @@
       this.set('headers', {
         'Content-Type': 'application/json'
       });
+    },
+
+    buildURL(modelName, id, snapshot, requestType, query) {
+      let url = this._super(...arguments);
+
+      if (modelName === 'speaker' && requestType === 'findRecord' && id) {
+        url += '?_ember=books';
+      }
+
+      if (modelName === 'book' && requestType === 'findRecord' && id) {
+        url += '?_ember=reviews';
+      }
+
+      return url;
     }
 
   });
@@ -1192,11 +1206,6 @@
     dataService: (0, _service.inject)('data'),
     actions: {
       async saveSpeaker(speaker) {
-        /*await this.dataService.createSpeaker(speaker);
-        this.model.set('id', speaker.id);
-        this.model.set('firstName', speaker.firstName);
-        this.model.set('lastName', speaker.lastName);
-        this.model.set('img', speaker.img);*/
         let newSpeaker = this.store.createRecord('speaker', speaker);
         newSpeaker.serialize();
         await newSpeaker.save();
@@ -1220,7 +1229,8 @@
     dataService: (0, _service.inject)('data'),
     actions: {
       async deleteSpeaker(speaker) {
-        await this.dataService.deleteSpeaker(speaker);
+        //await this.dataService.deleteSpeaker(speaker);
+        await speaker.destroyRecord();
         this.transitionToRoute('speakers.index');
       }
 
@@ -1851,7 +1861,8 @@
     author: _emberData.default.attr('string'),
     pages: _emberData.default.attr('string'),
     img: _emberData.default.attr('string'),
-    progress: _emberData.default.attr('string')
+    progress: _emberData.default.attr('string'),
+    speaker: _emberData.default.belongsTo('speaker')
   });
 
   _exports.default = _default;
@@ -1867,7 +1878,8 @@
   var _default = _emberData.default.Model.extend({
     firstName: _emberData.default.attr('string'),
     lastName: _emberData.default.attr('string'),
-    img: _emberData.default.attr('string')
+    img: _emberData.default.attr('string'),
+    books: _emberData.default.hasMany('book')
   });
 
   _exports.default = _default;
@@ -2406,7 +2418,7 @@
     }
   });
 });
-;define("juniormax/serializers/book", ["exports", "ember-data"], function (_exports, _emberData) {
+;define("juniormax/serializers/application", ["exports", "ember-data"], function (_exports, _emberData) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -2416,36 +2428,27 @@
 
   var _default = _emberData.default.JSONSerializer.extend({
     normalize(model, hash) {
-      let hashCopy = Object.assign({}, hash);
-      hashCopy.attributes = {};
-      hashCopy.attributes.title = hashCopy.title;
-      hashCopy.attributes.author = hashCopy.author;
-      hashCopy.attributes.pages = hashCopy.pages;
-      hashCopy.attributes.img = hashCopy.img;
-      hashCopy.attributes.progress = hashCopy.progress;
-      delete hashCopy.title;
-      delete hashCopy.author;
-      delete hashCopy.pages;
-      delete hashCopy.img;
-      delete hashCopy.progress;
-      hash = {
-        data: hashCopy
-      };
-      return hash;
+      return this._super(...arguments);
     },
 
-    serialize(snapshot, options) {
-      let json = this._super(...arguments);
+    keyForRelationship(key, typeClass, method) {
+      if (typeClass === 'belongsTo') {
+        return `${key}Id`;
+      }
 
-      json.type = snapshot.modelName;
-      return json;
+      return this._super(...arguments);
+    },
+
+    extractRelationship(relationshipModelName, relationshipHash) {
+      let hash = relationshipHash.id ? relationshipHash.id : relationshipHash;
+      return this._super.call(this, relationshipModelName, hash);
     }
 
   });
 
   _exports.default = _default;
 });
-;define("juniormax/serializers/speaker", ["exports", "ember-data"], function (_exports, _emberData) {
+;define("juniormax/serializers/book", ["exports", "ember-data", "juniormax/serializers/application"], function (_exports, _emberData, _application) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -2453,28 +2456,42 @@
   });
   _exports.default = void 0;
 
-  var _default = _emberData.default.JSONSerializer.extend({
+  var _default = _application.default.extend({
     normalize(model, hash) {
-      let hashCopy = Object.assign({}, hash);
-      hashCopy.attributes = {};
-      hashCopy.attributes.firstName = hashCopy.firstName;
-      hashCopy.attributes.lastName = hashCopy.lastName;
-      hashCopy.attributes.img = hashCopy.img;
-      delete hashCopy.firstName;
-      delete hashCopy.lastName;
-      delete hashCopy.img;
-      hash = {
-        data: hashCopy
-      };
+      hash = this._super(...arguments);
       return hash;
     },
 
-    serialize(snapshot, options) {
-      let json = this._super(...arguments);
-
-      json.type = snapshot.modelName;
-      return json;
+    serializeBelongsTo(snapshot, json, relationship) {
+      let key = relationship.key;
+      let belongsTo = snapshot.belongsTo(key);
+      key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", serialize) : key;
+      json[key] = isNone(belongsTo) ? belongsTo : parseInt(belongsTo.record.get('id'));
     }
+
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/serializers/speaker", ["exports", "ember-data", "juniormax/serializers/application"], function (_exports, _emberData, _application) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _application.default.extend({
+    normalize(model, hash) {
+      hash = this._super(...arguments);
+      return hash;
+    }
+    /* serialize(snapshot, options) {
+       let json = this._super(...arguments);
+       json.type = snapshot.modelName;
+       return json;
+     },*/
+
 
   });
 
@@ -3072,7 +3089,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+fb5ce34e"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+7cf8ae03"});
           }
         
 //# sourceMappingURL=juniormax.map

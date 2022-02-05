@@ -1,27 +1,17 @@
 import DS from 'ember-data';
+import ApplicationSerializer from './application';
 
-export default DS.JSONSerializer.extend({
+export default ApplicationSerializer.extend({
   normalize(model, hash) {
-    let hashCopy = Object.assign({}, hash);
-    hashCopy.attributes = {};
-    hashCopy.attributes.title = hashCopy.title;
-    hashCopy.attributes.author = hashCopy.author;
-    hashCopy.attributes.pages = hashCopy.pages;
-    hashCopy.attributes.img = hashCopy.img;
-    hashCopy.attributes.progress = hashCopy.progress;
-    delete hashCopy.title;
-    delete hashCopy.author;
-    delete hashCopy.pages;
-    delete hashCopy.img;
-    delete hashCopy.progress;
-    hash = {
-      data: hashCopy,
-    };
+    hash = this._super(...arguments);
     return hash;
+
   },
-  serialize(snapshot, options) {
-    let json = this._super(...arguments);
-    json.type = snapshot.modelName;
-    return json;
-  },
+  serializeBelongsTo(snapshot, json, relationship) {
+    let key = relationship.key;
+    let belongsTo = snapshot.belongsTo(key);
+
+    key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", serialize) : key;
+    json[key] = isNone(belongsTo)  ? belongsTo : parseInt(belongsTo.record.get('id'));
+  }
 });

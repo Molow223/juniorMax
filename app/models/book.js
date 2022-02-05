@@ -6,4 +6,6 @@ export default DS.Model.extend({
   pages: DS.attr('string'),
   img: DS.attr('string'),
   progress: DS.attr('string'),
+
+  speaker: DS.belongsTo('speaker')
 });
