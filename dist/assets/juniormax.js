@@ -2426,7 +2426,7 @@
     serializeBelongsTo(snapshot, json, relationship) {
       let key = relationship.key;
       let belongsTo = snapshot.belongsTo(key);
-      key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", serialize) : key;
+      key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
       json[key] = (0, _utils.isNone)(belongsTo) ? belongsTo : parseInt(belongsTo.record.get('id'));
     }
 
@@ -2443,6 +2443,13 @@
   _exports.default = void 0;
 
   var _default = _application.default.extend({
+    attrs: {
+      speaker: {
+        serialize: 'record',
+        deserialise: 'record'
+      }
+    },
+
     normalize(model, hash) {
       hash = this._super(...arguments);
       return hash;
@@ -3069,7 +3076,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+0f688829"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+632ef062"});
           }
         
 //# sourceMappingURL=juniormax.map

@@ -22,7 +22,7 @@ export default DS.JSONSerializer.extend({
     let key = relationship.key;
     let belongsTo = snapshot.belongsTo(key);
 
-    key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", serialize) : key;
+    key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
     json[key] = isNone(belongsTo)  ? belongsTo : parseInt(belongsTo.record.get('id'));
   },
 });

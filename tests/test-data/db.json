@@ -3,7 +3,7 @@
     {
       "id": 1,
       "type": "speaker",
-      "firstName": "Roberto8",
+      "firstName": "Roberto",
       "lastName": "Martinu",
       "img": "/6.jpg"
     },
@@ -82,17 +82,15 @@
       "author": "NameAuthor8",
       "pages": "789",
       "img": "/3.jpg",
-      "progress": "32%",
-      "type": "book"
+      "progress": "32%"
     },
     {
       "id": 4,
-      "title": "Чип и Дейл",
+      "title": "Чип и Дейл 23",
       "author": "NameAuthor4",
       "pages": "147",
       "img": "/6.jpg",
-      "progress": "68%",
-      "type": "book"
+      "progress": "68%"
     },
     {
       "id": 5,
@@ -100,8 +98,7 @@
       "author": "NameAuthor4",
       "pages": "147",
       "img": "/4.jpg",
-      "progress": "68%",
-      "type": "book"
+      "progress": "68%"
     },
     {
       "id": 6,
@@ -109,8 +106,7 @@
       "author": "NameAuthor4",
       "pages": "147",
       "img": "/4.jpg",
-      "progress": "68%",
-      "type": "book"
+      "progress": "68%"
     },
     {
       "title": "Frenk",
@@ -118,8 +114,7 @@
       "pages": "230",
       "img": "/5.jpg",
       "progress": "52",
-      "id": 12,
-      "type": "book"
+      "id": 12
     },
     {
       "title": "kool",
@@ -127,8 +122,7 @@
       "pages": "12",
       "img": "/4.jpg",
       "progress": "13",
-      "id": 13,
-      "type": "book"
+      "id": 13
     },
     {
       "title": "pop",
@@ -136,8 +130,7 @@
       "pages": "52",
       "img": "/5.jpg",
       "progress": "23",
-      "id": 14,
-      "type": "book"
+      "id": 14
     },
     {
       "title": "Roberto",
@@ -145,8 +138,7 @@
       "pages": "25",
       "img": "/6.jpg",
       "progress": "69",
-      "id": 15,
-      "type": "book"
+      "id": 15
     },
     {
       "title": "Edgarhfthhf",
@@ -154,8 +146,15 @@
       "pages": "56",
       "img": "/4.jpg",
       "progress": "36",
-      "id": 16,
-      "type": "book"
+      "id": 16
+    },
+    {
+      "title": "Garry Poter",
+      "author": "Robertfgncg",
+      "pages": "89",
+      "img": "/7.jpg",
+      "progress": "23",
+      "id": 17
     }
   ],
   "meettings": [
