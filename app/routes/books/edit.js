@@ -5,6 +5,6 @@ export default Route.extend({
   dataService: service('data'),
 
   model({ id }) {
-    return this.store.findRecord('book', id);
+    return this.get('store').findRecord('book', id);
   },
 });

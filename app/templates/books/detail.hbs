@@ -2,17 +2,17 @@
     <div class="title">
         <div class="slide-out-card">
             {{#link-to "books"}}
-            <button type="button">Back</button>
+            <button class="btn btn-outline-primary" type="button">Back</button>
             {{/link-to}}
         </div>
         <div>
             <img src={{model.img}} class="card-img-top" alt="Обложка книги">
             <h3>{{model.title}}</h3>
 
-            {{#link-to "books.edit" model.id}}
-            <button type="button">Edit</button>
+            {{#link-to "books.edit" model.id class="btn btn-outline-primary"}}
+            Edit
             {{/link-to}}
-            <button type="button" onclick={{action "deleteBook" model}}>Delete</button>
+            <button type="button" class="btn btn-outline-primary" onclick={{action "deleteBook" model}}>Delete</button>
 
         </div>
     </div>

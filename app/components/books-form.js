@@ -22,7 +22,6 @@ export default Component.extend({
 
   didReceiveAttrs() {
     this._super();
-    /*this._super();*/
     const self = this;
     this.setProperties({
       id: self.get('book.id') ? self.get('book.id') : undefined,

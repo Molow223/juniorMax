@@ -11,7 +11,7 @@
       "id": 3,
       "type": "speaker",
       "firstName": "Edgar",
-      "lastName": "Poe",
+      "lastName": "Poe8",
       "img": "/2.jpg"
     },
     {
@@ -61,6 +61,18 @@
       "lastName": "Star",
       "img": "/6.jpg",
       "id": 42
+    },
+    {
+      "firstName": "Lord",
+      "lastName": "Volandemort",
+      "img": "/5.jpg",
+      "id": 43
+    },
+    {
+      "firstName": "tfhf",
+      "lastName": "fthft",
+      "img": "/8.jpg",
+      "id": 44
     }
   ],
   "books": [
@@ -143,24 +155,6 @@
       "img": "/4.jpg",
       "progress": "36",
       "id": 16,
-      "type": "book"
-    },
-    {
-      "title": "hytg",
-      "author": "top",
-      "pages": "52",
-      "img": "/7.jpg",
-      "progress": "9667",
-      "id": 17,
-      "type": "book"
-    },
-    {
-      "title": "vncvn",
-      "author": "vnvc",
-      "pages": "85",
-      "img": "/4.jpg",
-      "progress": "69",
-      "id": 18,
       "type": "book"
     }
   ],

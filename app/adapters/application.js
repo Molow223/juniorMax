@@ -14,10 +14,10 @@ export default DS.JSONAPIAdapter.extend({
     let url = this._super(...arguments);
 
     if(modelName ==='speaker' && requestType ==='findRecord' && id) {
-      url +='?_ember=books'
+      url +='?_embed=books'
     }
     if(modelName ==='book' && requestType ==='findRecord' && id) {
-      url +='?_ember=reviews';
+      url +='?_embed=reviews';
     }
     return url;
   }

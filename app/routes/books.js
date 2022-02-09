@@ -45,7 +45,7 @@ export default Route.extend({
   },
 
   actions: {
-    refreshSpeakers() {
+    refreshBooks() {
       //this.refresh();
     },
     /*loading(transition, originRoute) {

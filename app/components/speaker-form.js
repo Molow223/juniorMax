@@ -20,15 +20,6 @@ export default Component.extend({
 
   didReceiveAttrs() {
     this._super();
-    /*this._super();
-     this.__super(...arguments);*/
-
-    /*
-    this.set('id', this.get('speaker.id'));
-    this.set('firstName', this.get('speaker.firstName'));
-    this.set('lastName', this.get('speaker.lastName'));
-    this.set('img', this.get('speaker.img'));
-    */
     const self = this;
     this.setProperties({
       idSpeaker: self.get('speaker.id') ? self.get('speaker.id') : undefined,
