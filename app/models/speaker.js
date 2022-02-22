@@ -5,5 +5,5 @@ export default DS.Model.extend({
   lastName: DS.attr('string'),
   img: DS.attr('string'),
 
-  books: DS.hasMany('book')
+  books: DS.hasMany('book'),
 });

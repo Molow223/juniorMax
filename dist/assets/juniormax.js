@@ -988,6 +988,50 @@
     }
   });
 });
+;define("juniormax/components/meetings-form", ["exports", "@ember/component", "@ember/service"], function (_exports, _component, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _component.default.extend({
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      submitForm(e) {
+        e.preventDefault();
+        const self = this;
+        this.onSubmit({
+          id: self.get('idMeeting'),
+          title: self.get('title'),
+          author: self.get('author'),
+          img: self.get('img'),
+          progress: self.get('progress'),
+          review: self.get('review')
+        });
+      }
+
+    },
+
+    didReceiveAttrs() {
+      this._super();
+
+      const self = this;
+      this.setProperties({
+        idMeeting: self.get('meeting.id') ? self.get('meeting.id') : undefined,
+        title: self.get('meeting.title'),
+        author: self.get('meeting.author'),
+        img: self.get('meeting.img'),
+        progress: self.get('meeting.progress'),
+        review: self.get('meeting.review')
+      });
+    }
+
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/components/speaker-form", ["exports", "@ember/component", "@ember/service"], function (_exports, _component, _service) {
   "use strict";
 
@@ -1163,6 +1207,21 @@
       }
 
     }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/meetings", ["exports", "@ember/controller"], function (_exports, _controller) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    queryParams: ['search'],
+    search: ''
   });
 
   _exports.default = _default;
@@ -1855,6 +1914,25 @@
 
   _exports.default = _default;
 });
+;define("juniormax/models/meeting", ["exports", "ember-data"], function (_exports, _emberData) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _emberData.default.Model.extend({
+    title: _emberData.default.attr('string'),
+    author: _emberData.default.attr('string'),
+    img: _emberData.default.attr('string'),
+    progress: _emberData.default.attr('string'),
+    review: _emberData.default.attr('string') //books: DS.hasMany('book'),
+
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/models/speaker", ["exports", "ember-data"], function (_exports, _emberData) {
   "use strict";
 
@@ -1992,7 +2070,9 @@
         path: '/:id/edit'
       });
     });
-    this.route('meetings');
+    this.route('meetings', function () {
+      this.route('create');
+    });
     this.route('404', {
       path: '*path'
     });
@@ -2153,7 +2233,7 @@
       let {
         id
       } = _ref;
-      return this.get('store').findRecord('book', id);
+      return this.store.findRecord('book', id);
     }
 
   });
@@ -2175,7 +2255,7 @@
       let {
         id
       } = _ref;
-      return this.get('store').findRecord('book', id);
+      return this.store.findRecord('book', id);
     }
 
   });
@@ -2203,10 +2283,58 @@
   _exports.default = void 0;
 
   var _default = _route.default.extend({
+    queryParams: {
+      search: {
+        refreshModel: true
+      }
+    },
     dataService: (0, _service.inject)('data'),
 
+    model(_ref) {
+      let {
+        search
+      } = _ref;
+      return this.store.findAll('meeting');
+    },
+
+    setupController(controller, model) {
+      this._super(...arguments);
+      /*if (this.modelPromise) {
+        controller.set('isLoading', true);
+      }*/
+
+    },
+
+    actions: {
+      refreshMeetings() {//this.refresh();
+      }
+      /*loading(transition, originRoute) {
+        return false;
+      },*/
+
+
+    }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/routes/meetings/create", ["exports", "@ember/routing/route", "@ember/object"], function (_exports, _route, _object) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _route.default.extend({
     model() {
-      return this.dataService.getMeetingsData();
+      return _object.default.create({
+        title: '',
+        author: '',
+        img: '',
+        progress: '',
+        review: ''
+      });
     }
 
   });
@@ -2316,7 +2444,7 @@
       let {
         id
       } = _ref;
-      return this.get('store').findRecord('speaker', id);
+      return this.store.findRecord('speaker', id);
     }
 
   });
@@ -2338,7 +2466,7 @@
       let {
         id
       } = _ref;
-      return this.get('store').findRecord('speaker', id);
+      return this.store.findRecord('speaker', id);
     }
 
   });
@@ -2426,7 +2554,7 @@
     serializeBelongsTo(snapshot, json, relationship) {
       let key = relationship.key;
       let belongsTo = snapshot.belongsTo(key);
-      key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
+      key = this.keyForRelationship ? this.keyForRelationship(key, 'belongsTo', 'serialize') : key;
       json[key] = (0, _utils.isNone)(belongsTo) ? belongsTo : parseInt(belongsTo.record.get('id'));
     }
 
@@ -2678,8 +2806,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "upE1Bd+2",
-    "block": "[[[1,\"\\n\\n\\t\"],[10,\"head\"],[12],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"/assets/styles.css\"],[12],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"/assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item active nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tРабочий стол\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tВстречи клуба\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tКниги\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tСпикеры\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tОставить заявку\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tЗапланировать\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2022\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"]],[],false,[\"link-to\",\"component\",\"-outlet\"]]",
+    "id": "h0kL3o5u",
+    "block": "[[[1,\"\\n\\n\\t\"],[10,\"head\"],[12],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,\"charset\",\"UTF-8\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"meta\"],[14,3,\"viewport\"],[14,\"content\",\"width=device-width, initial-scale=1, shrink-to-fit=no\"],[12],[13],[1,\"\\n\\t\\t\"],[10,\"title\"],[12],[1,\"Книжный клуб Skyori\"],[13],[1,\"\\n\\t\\t\"],[10,\"link\"],[14,\"rel\",\"stylesheet\"],[14,6,\"/assets/styles.css\"],[12],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"body\"],[14,0,\"home-page\"],[12],[1,\"\\n\\t\\t\"],[10,\"nav\"],[14,0,\"navbar fixed-top navbar-expand-lg navbar-light bg-light\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"img\"],[14,\"src\",\"/assets/images/logo-dark.png\"],[14,\"width\",\"30\"],[14,\"height\",\"30\"],[14,0,\"d-inline-block align-top\"],[14,\"alt\",\"\"],[14,\"loading\",\"lazy\"],[12],[13],[1,\"\\n\\t\\t\\tКнижный клуб\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"navbar-toggler\"],[14,\"data-toggle\",\"collapse\"],[14,\"data-target\",\"#navbarContent\"],[14,\"aria-controls\",\"navbarSupportedContent\"],[14,\"aria-expanded\",\"false\"],[14,\"aria-label\",\"Открыть меню\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[14,0,\"navbar-toggler-icon\"],[12],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"collapse navbar-collapse\"],[14,1,\"navbarContent\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav navigation-main\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tРабочий стол\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tВстречи клуба\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tКниги\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tСпикеры\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tОставить заявку\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item nav-link\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"index\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\\tЗапланировать\\n\"]],[]]]]],[1,\"\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"nav navbar-nav\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"nav-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"nav-link\"],[14,6,\"#\"],[12],[1,\"Войти\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,0],[14,0,\"container h-100\"],[12],[1,\"\\n\\t\\t\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"footer\"],[14,0,\"footer\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"container\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,1],[12],[1,\"© Skyori, 2022\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"]],[],false,[\"link-to\",\"component\",\"-outlet\"]]",
     "moduleName": "juniormax/templates/application.hbs",
     "isStrictMode": false
   });
@@ -2814,6 +2942,23 @@
     }
   });
 });
+;define("juniormax/templates/components/meetings-form", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "kMuV6gwD",
+    "block": "[[[10,\"form\"],[14,0,\"form-col my-5\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Title:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Title\",[33,1]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Author:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Author\",[33,2]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Img:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"/1.jpg - /8.jpg\",[33,3]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Progress:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Progress\",[33,4]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Review:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Review\",[33,5]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"input\",\"title\",\"author\",\"img\",\"progress\",\"review\"]]",
+    "moduleName": "juniormax/templates/components/meetings-form.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/templates/components/speaker-form", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
   "use strict";
 
@@ -2823,8 +2968,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "xaXUb45R",
-    "block": "[[[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[14,0,\"form-col my-5\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-4 text-right\"],[12],[1,\"First Name:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"First Name\",[33,2]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-4\"],[12],[1,\"Last Name:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"LastName\",[33,3]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-4\"],[12],[1,\"Img:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"/1.jpg - /8.jpg\",[33,4]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"action\",\"input\",\"firstName\",\"lastName\",\"img\"]]",
+    "id": "WT0XTutv",
+    "block": "[[[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[14,0,\"form-col my-5\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"First Name:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"First Name\",[33,2]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Last Name:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"LastName\",[33,3]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Img:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"/1.jpg - /8.jpg\",[33,4]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"action\",\"input\",\"firstName\",\"lastName\",\"img\"]]",
     "moduleName": "juniormax/templates/components/speaker-form.hbs",
     "isStrictMode": false
   });
@@ -2874,8 +3019,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "5H0hdDjq",
-    "block": "[[[10,0],[14,0,\"row align-items-center h-100 home-page-nav\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-people desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1h7.956a.274.274 0 0 0 .014-.002l.008-.002c-.002-.264-.167-1.03-.76-1.72C13.688 10.629 12.718 10 11 10c-1.717 0-2.687.63-3.24 1.276-.593.69-.759 1.457-.76 1.72a1.05 1.05 0 0 0 .022.004zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10c-1.668.02-2.615.64-3.16 1.276C1.163 11.97 1 12.739 1 13h3c0-1.045.323-2.086.92-3zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"books\"]],[[\"default\"],[[[[1,\">\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-book desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1 2.828v9.923c.918-.35 2.107-.692 3.287-.81 1.094-.111 2.278-.039 3.213.492V2.687c-.654-.689-1.782-.886-3.112-.752-1.234.124-2.503.523-3.388.893zm7.5-.141v9.746c.935-.53 2.12-.603 3.213-.493 1.18.12 2.37.461 3.287.811V2.828c-.885-.37-2.154-.769-3.388-.893-1.33-.134-2.458.063-3.112.752zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-mic desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M10 8V3a2 2 0 1 0-4 0v5a2 2 0 1 0 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13]],[],false,[\"link-to\"]]",
+    "id": "6IEwXogz",
+    "block": "[[[10,0],[14,0,\"row align-items-center h-100 home-page-nav\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"meetings\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-people desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1h7.956a.274.274 0 0 0 .014-.002l.008-.002c-.002-.264-.167-1.03-.76-1.72C13.688 10.629 12.718 10 11 10c-1.717 0-2.687.63-3.24 1.276-.593.69-.759 1.457-.76 1.72a1.05 1.05 0 0 0 .022.004zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10c-1.668.02-2.615.64-3.16 1.276C1.163 11.97 1 12.739 1 13h3c0-1.045.323-2.086.92-3zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"books\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-book desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1 2.828v9.923c.918-.35 2.107-.692 3.287-.81 1.094-.111 2.278-.039 3.213.492V2.687c-.654-.689-1.782-.886-3.112-.752-1.234.124-2.503.523-3.388.893zm7.5-.141v9.746c.935-.53 2.12-.603 3.213-.493 1.18.12 2.37.461 3.287.811V2.828c-.885-.37-2.154-.769-3.388-.893-1.33-.134-2.458.063-3.112.752zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"card text-center\",\"speakers\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-mic desktop-icon\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M10 8V3a2 2 0 1 0-4 0v5a2 2 0 1 0 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h3\"],[12],[1,\"Спикеры\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13]],[],false,[\"link-to\"]]",
     "moduleName": "juniormax/templates/index.hbs",
     "isStrictMode": false
   });
@@ -2908,9 +3053,26 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "Lq/ZqmU3",
-    "block": "[[[1,\"\\n\\t\\t\"],[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between align-items-end\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-1\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить встречу\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Спикер\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary dropdown-toggle my-2 w-100\"],[14,1,\"dropdownMenuButton\"],[14,\"data-toggle\",\"dropdown\"],[14,\"aria-haspopup\",\"true\"],[14,\"aria-expanded\",\"false\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,1],[12],[1,\"Спикер...\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"caret\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown-menu\"],[14,\"aria-labelledby\",\"dropdownMenuButton\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t  \"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Книга\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary dropdown-toggle my-2 w-100\"],[14,1,\"dropdownMenuButton\"],[14,\"data-toggle\",\"dropdown\"],[14,\"aria-haspopup\",\"true\"],[14,\"aria-expanded\",\"false\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,1],[12],[1,\"Книга...\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"caret\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown-menu\"],[14,\"aria-labelledby\",\"dropdownMenuButton\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t  \"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Дата встречи\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"form-group py-2 my-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"datepicker date input-group p-0 w-100\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"input\"],[14,\"placeholder\",\"Дата...\"],[14,0,\"form-control\"],[14,1,\"reservationDate\"],[14,4,\"text\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"input-group-append\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"input-group-text px-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"width\",\"1em\"],[14,\"height\",\"1em\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-clock\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm8-7A8 8 0 1 1 0 8a8 8 0 0 1 16 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto text-right col-filter\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-funnel card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary my-2\"],[14,\"disabled\",\"disabled\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-x card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\\t\"],[10,0],[14,0,\"border border-dark rounded p-4 mb-4\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"h4\"],[12],[1,\"Дата встречи\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"row h-100 justify-content-between mb-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"datepicker datepicker-meeting date input-group p-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"input\"],[14,\"placeholder\",\"Дата...\"],[14,0,\"form-control\"],[14,1,\"reservationDate\"],[14,2,\"24.10.2020\"],[14,\"disabled\",\"disabled\"],[14,4,\"text\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"input-group-append\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"input-group-text px-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"width\",\"1em\"],[14,\"height\",\"1em\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-clock\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm8-7A8 8 0 1 1 0 8a8 8 0 0 1 16 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\\t\\t\"],[10,\"h4\"],[12],[1,\"Список докладов\"],[13],[1,\"\\n\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"list-group\"],[12],[1,\"\\n\"],[42,[28,[37,1],[[28,[37,1],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row h-100 justify-content-between\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Спикер\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[29,[[28,[37,2],[[30,1,[\"img\"]]],null]]]],[14,0,\"rounded w-100\"],[14,\"alt\",\"Спикер\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,2],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Книга\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,2],[[30,1,[\"title\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,2],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row align-items-center m-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto pl-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\tОценка:\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col p-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[15,5,[29,[\"width: \",[28,[37,2],[[30,1,[\"progress\"]]],null],\";\"]]],[14,\"aria-valuenow\",\"75\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,[28,[35,2],[[30,1,[\"progress\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-6\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"text-center py-2\"],[12],[1,\"Отзыв\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,2],[[30,1,[\"review\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center col-filter\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Ссылки\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"#\"],[14,0,\"btn btn-video\"],[14,\"title\",\"Посмотреть запись доклада\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-camera-reels card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M0 8a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 7.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 16H2a2 2 0 0 1-2-2V8zm11.5 5.175l3.5 1.556V7.269l-3.5 1.556v4.35zM2 7a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H2z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M9 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"#\"],[14,0,\"btn btn-present\"],[14,\"title\",\"Скачать презентацию\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-file-ppt card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M6 4a.5.5 0 0 1 .5.5V12a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 6 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8.5 5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-3 2a3 3 0 1 1 6 0 3 3 0 0 1-6 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\n\\t\\t\\t\"],[10,\"nav\"],[14,\"aria-label\",\"Page navigation example\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"ul\"],[14,0,\"pagination justify-content-end\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item disabled\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Previous\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"«\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item active\"],[14,\"aria-current\",\"page\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"1 \"],[10,1],[14,0,\"sr-only\"],[12],[1,\"(текущая)\"],[13],[13],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"2\"],[13],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"3\"],[13],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Next\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"»\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"]],[\"meet\"],false,[\"each\",\"-track-array\",\"get-meetings\"]]",
+    "id": "RjuRJUWQ",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between align-items-end\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-1\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"btn-new\",\"meetings.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить встречу\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Спикер\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"dropdown\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary dropdown-toggle my-2 w-100\"],[14,1,\"dropdownMenuButton\"],[14,\"data-toggle\",\"dropdown\"],[14,\"aria-haspopup\",\"true\"],[14,\"aria-expanded\",\"false\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[12],[1,\"Спикер...\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"caret\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown-menu\"],[14,\"aria-labelledby\",\"dropdownMenuButton\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Книга\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"dropdown\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary dropdown-toggle my-2 w-100\"],[14,1,\"dropdownMenuButton\"],[14,\"data-toggle\",\"dropdown\"],[14,\"aria-haspopup\",\"true\"],[14,\"aria-expanded\",\"false\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[12],[1,\"Книга...\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"caret\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown-menu\"],[14,\"aria-labelledby\",\"dropdownMenuButton\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Дата встречи\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"form-group py-2 my-0\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"datepicker date input-group p-0 w-100\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"input\"],[14,\"placeholder\",\"Дата...\"],[14,0,\"form-control\"],[14,1,\"reservationDate\"],[14,4,\"text\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"input-group-append\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"input-group-text px-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"width\",\"1em\"],[14,\"height\",\"1em\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-clock\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm8-7A8 8 0 1 1 0 8a8 8 0 0 1 16 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto text-right col-filter\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-funnel card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary my-2\"],[14,\"disabled\",\"disabled\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-x card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\"],[10,0],[14,0,\"border border-dark rounded p-4 mb-4\"],[12],[1,\"\\n\\t\\t\"],[10,\"h4\"],[12],[1,\"Дата встречи\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"row h-100 justify-content-between mb-4\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"datepicker datepicker-meeting date input-group p-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"input\"],[14,\"placeholder\",\"Дата...\"],[14,0,\"form-control\"],[14,1,\"reservationDate\"],[14,2,\"24.10.2020\"],[14,\"disabled\",\"disabled\"],[14,4,\"text\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"input-group-append\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"input-group-text px-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"width\",\"1em\"],[14,\"height\",\"1em\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-clock\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm8-7A8 8 0 1 1 0 8a8 8 0 0 1 16 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"h4\"],[12],[1,\"Список докладов\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"ul\"],[14,0,\"list-group\"],[12],[1,\"\\n\"],[42,[28,[37,4],[[28,[37,4],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\\t\"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"row h-100 justify-content-between\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Спикер\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[29,[[28,[37,5],[[30,1,[\"img\"]]],null]]]],[14,0,\"rounded w-100\"],[14,\"alt\",\"Спикер\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,5],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Книга\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,5],[[30,1,[\"title\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,5],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row align-items-center m-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto pl-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\tОценка:\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col p-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[15,5,[29,[\"width: \",[28,[37,5],[[30,1,[\"progress\"]]],null],\";\"]]],[14,\"aria-valuenow\",\"75\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,[28,[35,5],[[30,1,[\"progress\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-6\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"text-center py-2\"],[12],[1,\"Отзыв\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,5],[[30,1,[\"review\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center col-filter\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Ссылки\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"#\"],[14,0,\"btn btn-video\"],[14,\"title\",\"Посмотреть запись доклада\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-camera-reels card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M0 8a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 7.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 16H2a2 2 0 0 1-2-2V8zm11.5 5.175l3.5 1.556V7.269l-3.5 1.556v4.35zM2 7a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H2z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M9 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"#\"],[14,0,\"btn btn-present\"],[14,\"title\",\"Скачать презентацию\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-file-ppt card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M6 4a.5.5 0 0 1 .5.5V12a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 6 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8.5 5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-3 2a3 3 0 1 1 6 0 3 3 0 0 1-6 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"nav\"],[14,\"aria-label\",\"Page navigation example\"],[12],[1,\"\\n\\t\\t\"],[10,\"ul\"],[14,0,\"pagination justify-content-end\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item disabled\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Previous\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"«\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item active\"],[14,\"aria-current\",\"page\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"1 \"],[10,1],[14,0,\"sr-only\"],[12],[1,\"(текущая)\"],[13],[13],[13],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"2\"],[13],[13],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"3\"],[13],[13],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Next\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"»\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13]],[\"meeting\"],false,[\"link-to\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"get-meetings\"]]",
     "moduleName": "juniormax/templates/meetings.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/meetings/create", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "ttZY50yx",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn btn-outline-primary\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Speaker:\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            Form\\n        \"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"meeting\"],[[33,2]]]]],[1,\"\\n        \\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"meetings-form\",\"model\"]]",
+    "moduleName": "juniormax/templates/meetings/create.hbs",
     "isStrictMode": false
   });
 
@@ -3076,7 +3238,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+632ef062"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+414ef521"});
           }
         
 //# sourceMappingURL=juniormax.map

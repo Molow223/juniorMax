@@ -7,7 +7,7 @@ export default Controller.extend({
   actions: {
     async deleteSpeaker(speaker) {
       //await this.dataService.deleteSpeaker(speaker);
-      await speaker.destroyRecord()
+      await speaker.destroyRecord();
       this.transitionToRoute('speakers.index');
     },
   },

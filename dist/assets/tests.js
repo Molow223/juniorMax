@@ -114,6 +114,44 @@ define("juniormax/tests/integration/components/books-item-test", ["@ember/templa
     });
   });
 });
+define("juniormax/tests/integration/components/meetings-form-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
+  "use strict";
+
+  (0, _qunit.module)('Integration | Component | meetings-form', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
+    (0, _qunit.test)('it renders', async function (assert) {
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.set('myAction', function(val) { ... });
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        <MeetingsForm />
+      */
+      {
+        "id": "lZABgY4q",
+        "block": "[[[8,[39,0],null,null,null]],[],false,[\"meetings-form\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText(''); // Template block usage:
+
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        
+            <MeetingsForm>
+              template block text
+            </MeetingsForm>
+          
+      */
+      {
+        "id": "SHCTJnUV",
+        "block": "[[[1,\"\\n      \"],[8,[39,0],null,null,[[\"default\"],[[[[1,\"\\n        template block text\\n      \"]],[]]]]],[1,\"\\n    \"]],[],false,[\"meetings-form\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText('template block text');
+    });
+  });
+});
 define("juniormax/tests/integration/components/rental-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
   "use strict";
 
@@ -450,6 +488,18 @@ define("juniormax/tests/unit/controllers/books/edit-test", ["qunit", "ember-quni
     });
   });
 });
+define("juniormax/tests/unit/controllers/meetings-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | meetings', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:meetings');
+      assert.ok(controller);
+    });
+  });
+});
 define("juniormax/tests/unit/controllers/speakers-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
   "use strict";
 
@@ -507,6 +557,19 @@ define("juniormax/tests/unit/models/book-test", ["qunit", "ember-qunit"], functi
     (0, _qunit.test)('it exists', function (assert) {
       let store = this.owner.lookup('service:store');
       let model = store.createRecord('book', {});
+      assert.ok(model);
+    });
+  });
+});
+define("juniormax/tests/unit/models/meeting-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Model | meeting', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let model = store.createRecord('meeting', {});
       assert.ok(model);
     });
   });
@@ -630,6 +693,17 @@ define("juniormax/tests/unit/routes/meetings-test", ["qunit", "ember-qunit"], fu
     (0, _emberQunit.setupTest)(hooks);
     (0, _qunit.test)('it exists', function (assert) {
       let route = this.owner.lookup('route:meetings');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/meetings/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | meetings/create', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:meetings/create');
       assert.ok(route);
     });
   });

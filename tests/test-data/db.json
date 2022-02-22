@@ -3,7 +3,7 @@
     {
       "id": 1,
       "type": "speaker",
-      "firstName": "Roberto",
+      "firstName": "Roberto 23",
       "lastName": "Martinu",
       "img": "/6.jpg"
     },
@@ -73,6 +73,12 @@
       "lastName": "fthft",
       "img": "/8.jpg",
       "id": 44
+    },
+    {
+      "firstName": "Robert8",
+      "lastName": "Roberto",
+      "img": "/6.jpg",
+      "id": 45
     }
   ],
   "books": [
@@ -157,12 +163,12 @@
       "id": 17
     }
   ],
-  "meettings": [
+  "meetings": [
     {
       "id": 1,
       "title": "Консервация",
       "author": "NameAuthor1",
-      "img": "1.jpg",
+      "img": "/1.jpg",
       "progress": "75%",
       "review": "Molestiae molestiae saepe commodi delectus possimus nobis et. Assumenda sunt blanditiis.  Pariatur et aut molestiae nihil. Blanditiis explicabo autem error. Qui aperiam sunt earum quod aut deserunt corporis accusamus. Quia numquam est magnam cumque."
     },
@@ -170,7 +176,7 @@
       "id": 2,
       "title": "Чебурашка",
       "author": "NameAuthor2",
-      "img": "2.jpg",
+      "img": "/2.jpg",
       "progress": "50%",
       "review": "Sapiente possimus temporibus eligendi id ea voluptate sit. Qui dolore tempore assumenda est quis et ut ut. Fugit reiciendis harum. Iusto magni aut illo in nesciunt reprehenderit. Porro ut aliquam autem vel. Dolorum officiis nobis ducimus dolorem nulla laudantium deleniti mollitia recusandae."
     },
@@ -178,7 +184,7 @@
       "id": 3,
       "title": "Про кубики",
       "author": "NameAuthor3",
-      "img": "3.jpg",
+      "img": "/3.jpg",
       "progress": "32%",
       "review": "Eum non qui tempore. Omnis debitis ut tenetur vero esse quia. Animi eum non vel consectetur unde voluptas modi qui error."
     },
@@ -187,7 +193,7 @@
       "title": "Чип и Дейл",
       "author": "NameAuthor4",
       "review": "147",
-      "img": "4.jpg",
+      "img": "/4.jpg",
       "progress": "68%"
     }
   ]

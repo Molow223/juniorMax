@@ -19,7 +19,9 @@ Router.map(function () {
     this.route('edit', { path: '/:id/edit' });
   });
 
-  this.route('meetings');
+  this.route('meetings', function () {
+    this.route('create');
+  });
 
   this.route('404', { path: '*path' });
 });
