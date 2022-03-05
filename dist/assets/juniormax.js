@@ -46,6 +46,14 @@
       }
 
       return url;
+    },
+
+    handleResponse(status, headers, payload) {
+      const meta = {
+        total: headers['x-total-count']
+      };
+      payload.meta = meta;
+      return this._super(status, headers, payload);
     }
 
   });
@@ -1032,6 +1040,18 @@
 
   _exports.default = _default;
 });
+;define("juniormax/components/meetings-item", ["exports", "@ember/component"], function (_exports, _component) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _component.default.extend({});
+
+  _exports.default = _default;
+});
 ;define("juniormax/components/speaker-form", ["exports", "@ember/component", "@ember/service"], function (_exports, _component, _service) {
   "use strict";
 
@@ -1109,17 +1129,40 @@
 
   _exports.default = _default;
 });
-;define("juniormax/controllers/books", ["exports", "@ember/controller"], function (_exports, _controller) {
+;define("juniormax/controllers/books", ["exports", "@ember/object", "@ember/controller"], function (_exports, _object, _controller) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
     value: true
   });
-  _exports.default = void 0;
+  _exports.default = _exports.PER_PAGE = void 0;
+  const PER_PAGE = 5;
+  _exports.PER_PAGE = PER_PAGE;
 
   var _default = _controller.default.extend({
-    queryParams: ['search'],
-    search: ''
+    queryParams: ['search', 'page', 'author'],
+    search: '',
+    page: 1,
+    author: '',
+    pages: (0, _object.computed)('model.books.meta.total', function () {
+      const total = Number(this.get('model.books.meta.total'));
+
+      if (Number.isNaN(total) || total <= 0) {
+        return [];
+      }
+
+      return new Array(Math.ceil(total / PER_PAGE)).fill().map((value, index) => index + 1);
+    }),
+    selectedAuthor: (0, _object.computed)('author', 'model.authors', function () {
+      const author = this.author;
+      return author ? this.get('model.authors').findBy('id', author) : null;
+    }),
+    actions: {
+      changeAuthor(author) {
+        this.set('author', author ? author.get('id') : '');
+      }
+
+    }
   });
 
   _exports.default = _default;
@@ -1211,7 +1254,35 @@
 
   _exports.default = _default;
 });
-;define("juniormax/controllers/meetings", ["exports", "@ember/controller"], function (_exports, _controller) {
+;define("juniormax/controllers/meetings", ["exports", "@ember/controller", "@ember/object"], function (_exports, _controller, _object) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = _exports.PER_PAGE = void 0;
+  const PER_PAGE = 5;
+  _exports.PER_PAGE = PER_PAGE;
+
+  var _default = _controller.default.extend({
+    queryParams: ['search', 'page', 'author'],
+    search: '',
+    page: 1,
+    author: '',
+    pages: (0, _object.computed)('model.meta.total', function () {
+      const total = Number(this.get('model.meta.total'));
+
+      if (Number.isNaN(total) || total <= 0) {
+        return [];
+      }
+
+      return new Array(Math.ceil(total / PER_PAGE)).fill().map((value, index) => index + 1);
+    })
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/meetings/create", ["exports", "@ember/controller", "@ember/service"], function (_exports, _controller, _service) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -1220,8 +1291,66 @@
   _exports.default = void 0;
 
   var _default = _controller.default.extend({
-    queryParams: ['search'],
-    search: ''
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      async saveMeeting(meeting) {
+        let newMeeting = this.store.createRecord('meeting', meeting);
+        newMeeting.serialize();
+        await newMeeting.save();
+        this.transitionToRoute('meetings.index');
+      }
+
+    }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/meetings/detail", ["exports", "@ember/controller", "@ember/service"], function (_exports, _controller, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      async deleteMeeting(meeting) {
+        await meeting.destroyRecord();
+        this.transitionToRoute('meetings.index');
+      }
+
+    }
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/controllers/meetings/edit", ["exports", "@ember/controller", "@ember/service"], function (_exports, _controller, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _controller.default.extend({
+    dataService: (0, _service.inject)('data'),
+    actions: {
+      async saveMeeting(meeting) {
+        //await this.dataService.updateSpeaker(speaker);
+        let meetingModel = this.model;
+        meetingModel.set('reservationDate', meeting.reservationDate);
+        meetingModel.set('title', meeting.title);
+        meetingModel.set('author', meeting.author);
+        meetingModel.set('img', meeting.img);
+        meetingModel.set('progress', meeting.progress);
+        meetingModel.set('review', meeting.review);
+        await meetingModel.save();
+        this.transitionToRoute('meetings.index');
+      }
+
+    }
   });
 
   _exports.default = _default;
@@ -1909,6 +2038,8 @@
     pages: _emberData.default.attr('string'),
     img: _emberData.default.attr('string'),
     progress: _emberData.default.attr('string'),
+    isbn: _emberData.default.attr('string'),
+    publishDate: _emberData.default.attr('date-string'),
     speaker: _emberData.default.belongsTo('speaker')
   });
 
@@ -1927,13 +2058,14 @@
     author: _emberData.default.attr('string'),
     img: _emberData.default.attr('string'),
     progress: _emberData.default.attr('string'),
-    review: _emberData.default.attr('string') //books: DS.hasMany('book'),
+    review: _emberData.default.attr('string') //reservationDate: DS.attr('4.10.2019')
+    //books: DS.hasMany('book'),
 
   });
 
   _exports.default = _default;
 });
-;define("juniormax/models/speaker", ["exports", "ember-data"], function (_exports, _emberData) {
+;define("juniormax/models/speaker", ["exports", "ember-data", "@ember/object"], function (_exports, _emberData, _object) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -1945,7 +2077,10 @@
     firstName: _emberData.default.attr('string'),
     lastName: _emberData.default.attr('string'),
     img: _emberData.default.attr('string'),
-    books: _emberData.default.hasMany('book')
+    books: _emberData.default.hasMany('book'),
+    fullName: (0, _object.computed)('firstName', 'lastName', function () {
+      return `${this.firstName} ${this.lastName}`;
+    })
   });
 
   _exports.default = _default;
@@ -2072,6 +2207,12 @@
     });
     this.route('meetings', function () {
       this.route('create');
+      this.route('detail', {
+        path: '/:id'
+      });
+      this.route('edit', {
+        path: '/:id/edit'
+      });
     });
     this.route('404', {
       path: '*path'
@@ -2118,7 +2259,7 @@
 
   _exports.default = _default;
 });
-;define("juniormax/routes/books", ["exports", "@ember/routing/route", "@ember/service", "rsvp", "@ember/runloop"], function (_exports, _route, _service, _rsvp, _runloop) {
+;define("juniormax/routes/books", ["exports", "@ember/routing/route", "rsvp", "@ember/runloop", "juniormax/controllers/books"], function (_exports, _route, _rsvp, _runloop, _books) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -2130,55 +2271,48 @@
     queryParams: {
       search: {
         refreshModel: true
+      },
+      page: {
+        refreshModel: true
+      },
+      author: {
+        refreshModel: true
       }
     },
-    dataService: (0, _service.inject)('data'),
 
     model(_ref) {
       let {
-        search
+        search,
+        page,
+        author
       } = _ref;
+      const query = {
+        _page: page,
+        _limit: _books.PER_PAGE
+      };
 
-      /*let promise = new Promise((resolve, reject) => {
-        later(async () => {
-          try {
-            let books = search
-              ? await this.dataService.getBooksData(search)
-              : await this.dataService.getBooksData();
-            resolve(books);
-          } catch (e) {
-            reject('Connection failed');
-          }
-        }, 1000);
-      })
-        .then((books) => {
-          this.set('controller.model', books);
-        })
-        .finally(() => {
-          if (promise === this.modelPromise) {
-            this.set('controller.isLoading', false);
-          }
-        });
-      this.set('modelPromise', promise);
-      return { isLoading: true };*/
-      return this.store.findAll('book');
+      if (search) {
+        query.q = search;
+      }
+
+      if (author) {
+        query.author = author;
+      }
+
+      return _rsvp.default.hash({
+        authors: this.store.findAll('speaker'),
+        books: this.store.query('book', query)
+      });
     },
 
     setupController(controller, model) {
       this._super(...arguments);
-      /*if (this.modelPromise) {
-        controller.set('isLoading', true);
-      }*/
-
     },
 
     actions: {
-      refreshBooks() {//this.refresh();
-      }
-      /*loading(transition, originRoute) {
+      loading(transition, originRoute) {
         return false;
-      },*/
-
+      }
 
     }
   });
@@ -2274,7 +2408,7 @@
 
   _exports.default = IndexRoute;
 });
-;define("juniormax/routes/meetings", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+;define("juniormax/routes/meetings", ["exports", "@ember/routing/route", "rsvp", "juniormax/controllers/meetings"], function (_exports, _route, _rsvp, _meetings) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -2286,15 +2420,39 @@
     queryParams: {
       search: {
         refreshModel: true
+      },
+      page: {
+        refreshModel: true
+      },
+      author: {
+        refreshModel: true
       }
     },
-    dataService: (0, _service.inject)('data'),
 
     model(_ref) {
       let {
-        search
+        search,
+        page,
+        author
       } = _ref;
-      return this.store.findAll('meeting');
+      const query = {
+        _page: page,
+        _limit: _meetings.PER_PAGE
+      };
+
+      if (search) {
+        query.q = search;
+      }
+      /*if (author){
+        query.author = author;
+      }*/
+
+
+      return this.store.query('meeting', query);
+      /*return RSVP.hash({
+        speakers: this.store.findAll('speaker'),
+        meetings: this.store.query('meetings', query),
+      });*/
     },
 
     setupController(controller, model) {
@@ -2341,7 +2499,51 @@
 
   _exports.default = _default;
 });
-;define("juniormax/routes/speakers", ["exports", "@ember/routing/route", "@ember/service", "rsvp", "@ember/runloop"], function (_exports, _route, _service, _rsvp, _runloop) {
+;define("juniormax/routes/meetings/detail", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _route.default.extend({
+    dataService: (0, _service.inject)('data'),
+
+    model(_ref) {
+      let {
+        id
+      } = _ref;
+      return this.store.findRecord('meeting', id);
+    }
+
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/routes/meetings/edit", ["exports", "@ember/routing/route", "@ember/service"], function (_exports, _route, _service) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _route.default.extend({
+    dataService: (0, _service.inject)('data'),
+
+    model(_ref) {
+      let {
+        id
+      } = _ref;
+      return this.store.findRecord('meeting', id);
+    }
+
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/routes/speakers", ["exports", "@ember/routing/route", "rsvp", "@ember/runloop"], function (_exports, _route, _rsvp, _runloop) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -2355,53 +2557,29 @@
         refreshModel: true
       }
     },
-    dataService: (0, _service.inject)('data'),
 
     model(_ref) {
       let {
         search
       } = _ref;
 
-      /*let promise = new Promise((resolve, reject) => {
-        later(async () => {
-          try {
-            let speakers = search
-              ? await this.dataService.getSpeakersData(search)
-              : await this.dataService.getSpeakersData();
-            resolve(speakers);
-          } catch (e) {
-            reject('Connection failed');
-          }
-        }, 1000);
-      })
-        .then((speakers) => {
-          this.set('controller.model', speakers);
-        })
-        .finally(() => {
-          if (promise === this.modelPromise) {
-            this.set('controller.isLoading', false);
-          }
+      if (search) {
+        return this.store.query('speaker', {
+          q: search
         });
-      this.set('modelPromise', promise);
-      return { isLoading: true };*/
+      }
+
       return this.store.findAll('speaker');
     },
 
     setupController(controller, model) {
       this._super(...arguments);
-      /*if (this.modelPromise) {
-        controller.set('isLoading', true);
-      }*/
-
     },
 
     actions: {
-      refreshSpeakers() {//this.refresh();
-      }
-      /*loading(transition, originRoute) {
+      loading(transition, originRoute) {
         return false;
-      },*/
-
+      }
 
     }
   });
@@ -2587,6 +2765,31 @@
 
   _exports.default = _default;
 });
+;define("juniormax/serializers/meetings", ["exports", "ember-data", "juniormax/serializers/application"], function (_exports, _emberData, _application) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = _application.default.extend({
+    attrs: {
+      meetings: {
+        serialize: 'record',
+        deserialise: 'id'
+      }
+    },
+
+    normalize(model, hash) {
+      hash = this._super(...arguments);
+      return hash;
+    }
+
+  });
+
+  _exports.default = _default;
+});
 ;define("juniormax/serializers/speaker", ["exports", "ember-data", "juniormax/serializers/application"], function (_exports, _emberData, _application) {
   "use strict";
 
@@ -2637,12 +2840,55 @@
     init() {
       this._super(...arguments);
 
+      this.set('meetings', (0, _array.A)());
       this.set('speakers', (0, _array.A)());
       this.set('books', (0, _array.A)());
     },
 
-    getMeetingsData() {
-      return fetch(`${_environment.default.backendURL}/meettings`).then(response => response.json());
+    async getMeetingsData(search) {
+      let queryParams = '';
+
+      if (search) {
+        queryParams = `?q=${search}`;
+      }
+
+      let response = await fetch(`${_environment.default.backendURL}/meetings${queryParams}`);
+      let meetings = await response.json();
+      this.meetings.clear();
+      this.meetings.pushObject(meetings);
+      return this.meetings;
+    },
+
+    getMeetingData(id) {
+      return this.meetings.find(meeting => meeting.id === parseInt(id));
+    },
+
+    deleteMeeting(meeting) {
+      this.meetings.removeObject(meeting);
+      return fetch(`${_environment.default.backendURL}/meetings/${meeting.id}`, {
+        method: 'DELETE'
+      });
+    },
+
+    async createMeeting(meeting) {
+      return await fetch(`${_environment.default.backendURL}/meetings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(meeting)
+      });
+    },
+
+    async updateMeeting(meeting) {
+      this.meetings.removeObject(meeting);
+      return await fetch(`${_environment.default.backendURL}/meetings/${meeting.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(meeting)
+      });
     },
 
     async getBooksData(search) {
@@ -2823,8 +3069,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "mF28JSI5",
-    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n  \"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Книги\"],[13],[1,\"\\n  \"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books.create\"]],[[\"default\"],[[[[1,\"      \"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить книгу\"],[14,4,\"button\"],[12],[1,\"\\n        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n          \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n        Add\\n      \"],[13],[1,\"\\n\"]],[]]]]],[1,\"    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"class\",\"type\",\"placeholder\",\"value\",\"aria-label\"],[\"form-control mr-2 search-long\",\"text\",\"Найти по полям\",[33,2],\"Найти по полям\"]]]],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2\"],[14,\"placeholder\",\"Поиск по тегам\"],[14,\"aria-label\",\"Найти по тегам\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Поиск\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n  \"],[13],[1,\"\\n\"],[41,[33,4],[[[1,\"\\t\\t\"],[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \\t\\t\"],[10,\"img\"],[14,\"src\",\"/cubs.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\"]],[]],[[[1,\"    \"],[46,[28,[37,6],null,null],null,null,null],[1,\"\\n  \"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3 fix-margin\"],[12],[1,\"\\n\"],[42,[28,[37,8],[[28,[37,8],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"    \"],[1,[28,[35,9],null,[[\"title\",\"img\",\"author\",\"pages\",\"progress\",\"id\",\"tagName\"],[[30,1,[\"title\"]],[30,1,[\"img\"]],[30,1,[\"author\"]],[30,1,[\"pages\"]],[30,1,[\"progress\"]],[30,1,[\"id\"]],\"\"]]]],[1,\"\\n\"]],[1]],null],[1,\"  \"],[13],[1,\"\\n\"]],[]]],[13]],[\"book\"],false,[\"link-to\",\"input\",\"search\",\"if\",\"isLoading\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"books-item\"]]",
+    "id": "LFChCbAx",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n  \"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Книги\"],[13],[1,\"\\n  \"],[10,0],[14,0,\"form-row navbar-panel justify-content-between\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"books.create\"]],[[\"default\"],[[[[1,\"      \"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить книгу\"],[14,4,\"button\"],[12],[1,\"\\n        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n          \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n        Add\\n      \"],[13],[1,\"\\n\"]],[]]]]],[1,\"    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"class\",\"type\",\"placeholder\",\"value\",\"aria-label\"],[\"form-control mr-2 search-long\",\"text\",\"Найти по полям\",[33,2],\"Найти по полям\"]]]],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Найти\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n      \"],[10,\"form\"],[14,0,\"form-inline\"],[12],[1,\"\\n        \"],[10,\"input\"],[14,0,\"form-control mr-2\"],[14,\"placeholder\",\"Поиск по тегам\"],[14,\"aria-label\",\"Найти по тегам\"],[14,4,\"search\"],[12],[13],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary my-2\"],[14,4,\"submit\"],[12],[1,\"Поиск\"],[13],[1,\"\\n      \"],[13],[1,\"\\n    \"],[13],[1,\"\\n  \"],[13],[1,\"\\n\"],[41,[33,4],[[[1,\"  \"],[10,0],[14,0,\"welcome-page\"],[14,5,\"margin-top: 70px\"],[12],[1,\"\\n    \"],[10,\"img\"],[14,\"src\",\"/cubs.gif\"],[14,\"alt\",\"loading\"],[12],[13],[1,\"\\n  \"],[13],[1,\"\\n\"]],[]],[[[1,\"  \"],[46,[28,[37,6],null,null],null,null,null],[1,\"\\n  \"],[10,0],[14,0,\"row row-cols-1 row-cols-md-3 fix-margin\"],[12],[1,\"\\n\"],[42,[28,[37,8],[[28,[37,8],[[30,0,[\"model\",\"books\"]]],null]],null],null,[[[1,\"    \"],[1,[28,[35,9],null,[[\"title\",\"img\",\"author\",\"pages\",\"progress\",\"id\",\"tagName\"],[[30,1,[\"title\"]],[30,1,[\"img\"]],[30,1,[\"author\"]],[30,1,[\"pages\"]],[30,1,[\"progress\"]],[30,1,[\"id\"]],\"\"]]]],[1,\"\\n\"]],[1]],null],[1,\"  \"],[13],[1,\"\\n\"]],[]]],[1,\"\\t\"],[10,\"nav\"],[14,\"aria-label\",\"Page navigation example\"],[14,5,\"margin: 100px;\"],[12],[1,\"\\n\\t\\t\"],[10,\"ul\"],[14,0,\"pagination justify-content-end\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item disabled\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Previous\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"«\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"],[42,[28,[37,8],[[28,[37,8],[[33,10]],null]],null],null,[[[1,\"\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item page-link\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[6,[39,0],null,[[\"query\",\"route\"],[[28,[37,11],null,[[\"page\"],[[30,2]]]],\"books\"]],[[\"default\"],[[[[1,[30,2]]],[]]]]],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[2]],null],[1,\"\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Next\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"»\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\"],[13],[1,\"\\n\"]],[\"book\",\"page\"],false,[\"link-to\",\"input\",\"search\",\"if\",\"isLoading\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"books-item\",\"pages\",\"-hash\"]]",
     "moduleName": "juniormax/templates/books.hbs",
     "isStrictMode": false
   });
@@ -2951,9 +3197,26 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "kMuV6gwD",
-    "block": "[[[10,\"form\"],[14,0,\"form-col my-5\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Title:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Title\",[33,1]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Author:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Author\",[33,2]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Img:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"/1.jpg - /8.jpg\",[33,3]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Progress:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Progress\",[33,4]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Review:\"],[13],[1,\"\\n        \"],[1,[28,[35,0],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Review\",[33,5]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"input\",\"title\",\"author\",\"img\",\"progress\",\"review\"]]",
+    "id": "RlRdvdCS",
+    "block": "[[[10,\"form\"],[15,\"onsubmit\",[28,[37,0],[[30,0],\"submitForm\"],null]],[14,0,\"form-col my-5\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Title:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Title\",[33,2]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Author:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Author\",[33,3]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Img:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"/1.jpg - /8.jpg\",[33,4]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Progress:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Progress\",[33,5]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[14,0,\"form-group row\"],[12],[1,\"\\n        \"],[10,\"label\"],[14,0,\"col-form-lable col-sm-6\"],[12],[1,\"Review:\"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"type\",\"class\",\"placeholder\",\"value\"],[\"text\",\"form-control col-sm-6\",\"Review\",[33,6]]]]],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,\"button\"],[14,0,\"btn btn-primary\"],[14,4,\"submit\"],[12],[1,\"save\"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"action\",\"input\",\"title\",\"author\",\"img\",\"progress\",\"review\"]]",
     "moduleName": "juniormax/templates/components/meetings-form.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/components/meetings-item", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "3e/WgSFY",
+    "block": "[[[10,0],[14,0,\"col mb-4\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\",\"model\"],[\"meetings.detail\",[33,1]]],[[\"default\"],[[[[1,\"        \"],[10,\"img\"],[15,\"src\",[28,[37,2],[[33,3]],null]],[14,0,\"card-img-top\"],[14,\"alt\",\"Фото спикера\"],[12],[13],[1,\"\\n        \"],[10,0],[14,0,\"card-body\"],[12],[1,\"\\n            \"],[10,3],[14,6,\"\"],[14,0,\"card-title\"],[12],[1,[28,[35,2],[[33,4]],null]],[1,\" \"],[1,[28,[35,2],[[33,5]],null]],[13],[1,\"\\n        \"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[10,0],[14,0,\"card-footer\"],[12],[1,\"\\n            \"],[10,0],[14,0,\"row\"],[12],[1,\"\\n                \"],[10,0],[14,0,\"col text-right\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\",\"model\"],[\"meetings.detail\",[33,1]]],[[\"default\"],[[[[1,\"                    \"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,4,\"button\"],[12],[1,\"\\n                        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                            \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n                        \"],[13],[1,\"\\n                    \"],[13],[1,\"\\n\"]],[]]]]],[6,[39,0],null,[[\"route\",\"model\"],[\"meetings.detail\",[33,1]]],[[\"default\"],[[[[1,\"                    \"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n                        \"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n                            \"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n                            \"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n                        \"],[13],[1,\"\\n                    \"],[13],[1,\"\\n\"]],[]]]]],[1,\"                \"],[13],[1,\"\\n            \"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13],[1,\"\\n\"]],[],false,[\"link-to\",\"id\",\"get-meetings\",\"img\",\"title\",\"author\"]]",
+    "moduleName": "juniormax/templates/components/meetings-item.hbs",
     "isStrictMode": false
   });
 
@@ -3053,8 +3316,8 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "RjuRJUWQ",
-    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between align-items-end\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-1\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"btn-new\",\"meetings.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить встречу\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Спикер\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"dropdown\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary dropdown-toggle my-2 w-100\"],[14,1,\"dropdownMenuButton\"],[14,\"data-toggle\",\"dropdown\"],[14,\"aria-haspopup\",\"true\"],[14,\"aria-expanded\",\"false\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[12],[1,\"Спикер...\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"caret\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown-menu\"],[14,\"aria-labelledby\",\"dropdownMenuButton\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Книга\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"dropdown\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary dropdown-toggle my-2 w-100\"],[14,1,\"dropdownMenuButton\"],[14,\"data-toggle\",\"dropdown\"],[14,\"aria-haspopup\",\"true\"],[14,\"aria-expanded\",\"false\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[12],[1,\"Книга...\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"caret\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown-menu\"],[14,\"aria-labelledby\",\"dropdownMenuButton\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Дата встречи\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"form-group py-2 my-0\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"datepicker date input-group p-0 w-100\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"input\"],[14,\"placeholder\",\"Дата...\"],[14,0,\"form-control\"],[14,1,\"reservationDate\"],[14,4,\"text\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"input-group-append\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"input-group-text px-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"width\",\"1em\"],[14,\"height\",\"1em\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-clock\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm8-7A8 8 0 1 1 0 8a8 8 0 0 1 16 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto text-right col-filter\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-funnel card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary my-2\"],[14,\"disabled\",\"disabled\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-x card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\t\"],[10,0],[14,0,\"border border-dark rounded p-4 mb-4\"],[12],[1,\"\\n\\t\\t\"],[10,\"h4\"],[12],[1,\"Дата встречи\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"row h-100 justify-content-between mb-4\"],[12],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"datepicker datepicker-meeting date input-group p-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"input\"],[14,\"placeholder\",\"Дата...\"],[14,0,\"form-control\"],[14,1,\"reservationDate\"],[14,2,\"24.10.2020\"],[14,\"disabled\",\"disabled\"],[14,4,\"text\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"input-group-append\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"input-group-text px-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"width\",\"1em\"],[14,\"height\",\"1em\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-clock\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm8-7A8 8 0 1 1 0 8a8 8 0 0 1 16 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-edit\"],[14,\"onclick\",\"javascript:location='edit-book.html'\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"h4\"],[12],[1,\"Список докладов\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"ul\"],[14,0,\"list-group\"],[12],[1,\"\\n\"],[42,[28,[37,4],[[28,[37,4],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\\t\"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"row h-100 justify-content-between\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Спикер\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[29,[[28,[37,5],[[30,1,[\"img\"]]],null]]]],[14,0,\"rounded w-100\"],[14,\"alt\",\"Спикер\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,5],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Книга\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,5],[[30,1,[\"title\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,5],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row align-items-center m-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto pl-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\tОценка:\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col p-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[15,5,[29,[\"width: \",[28,[37,5],[[30,1,[\"progress\"]]],null],\";\"]]],[14,\"aria-valuenow\",\"75\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,[28,[35,5],[[30,1,[\"progress\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-6\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"text-center py-2\"],[12],[1,\"Отзыв\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,5],[[30,1,[\"review\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center col-filter\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Ссылки\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"#\"],[14,0,\"btn btn-video\"],[14,\"title\",\"Посмотреть запись доклада\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-camera-reels card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M0 8a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 7.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 16H2a2 2 0 0 1-2-2V8zm11.5 5.175l3.5 1.556V7.269l-3.5 1.556v4.35zM2 7a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H2z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M9 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"#\"],[14,0,\"btn btn-present\"],[14,\"title\",\"Скачать презентацию\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-file-ppt card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M6 4a.5.5 0 0 1 .5.5V12a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 6 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8.5 5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-3 2a3 3 0 1 1 6 0 3 3 0 0 1-6 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\\t\"],[10,\"nav\"],[14,\"aria-label\",\"Page navigation example\"],[12],[1,\"\\n\\t\\t\"],[10,\"ul\"],[14,0,\"pagination justify-content-end\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item disabled\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Previous\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"«\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item active\"],[14,\"aria-current\",\"page\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"1 \"],[10,1],[14,0,\"sr-only\"],[12],[1,\"(текущая)\"],[13],[13],[13],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"2\"],[13],[13],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[12],[1,\"3\"],[13],[13],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Next\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"»\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\"],[13]],[\"meeting\"],false,[\"link-to\",\"component\",\"-outlet\",\"each\",\"-track-array\",\"get-meetings\"]]",
+    "id": "ogowRWyO",
+    "block": "[[[10,0],[14,0,\"htop\"],[12],[1,\"\\n\\t\"],[10,\"h2\"],[14,0,\"text-center\"],[12],[1,\"Встречи клуба\"],[13],[1,\"\\n\\t\"],[10,0],[14,0,\"form-row navbar-panel justify-content-between align-items-end\"],[12],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-1\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\"],[\"btn-new\",\"meetings.create\"]],[[\"default\"],[[[[1,\"\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,\"title\",\"Добавить встречу\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-plus card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Спикер\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"dropdown\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary dropdown-toggle my-2 w-100\"],[14,1,\"dropdownMenuButton\"],[14,\"data-toggle\",\"dropdown\"],[14,\"aria-haspopup\",\"true\"],[14,\"aria-expanded\",\"false\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[12],[1,\"Спикер...\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"caret\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown-menu\"],[14,\"aria-labelledby\",\"dropdownMenuButton\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Фамилия имя\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Книга\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"dropdown\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary dropdown-toggle my-2 w-100\"],[14,1,\"dropdownMenuButton\"],[14,\"data-toggle\",\"dropdown\"],[14,\"aria-haspopup\",\"true\"],[14,\"aria-expanded\",\"false\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[12],[1,\"Книга...\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"caret\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"dropdown-menu\"],[14,\"aria-labelledby\",\"dropdownMenuButton\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,3],[14,0,\"dropdown-item\"],[14,6,\"#\"],[12],[1,\"Название книги\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-3\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"h5\"],[12],[1,\"Дата встречи\"],[13],[1,\"\\n\\t\\t\\t\"],[10,0],[14,0,\"form-group py-2 my-0\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"datepicker date input-group p-0 w-100\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"input\"],[14,\"placeholder\",\"Дата...\"],[14,0,\"form-control\"],[14,1,\"reservationDate\"],[14,4,\"text\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"input-group-append\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"input-group-text px-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"width\",\"1em\"],[14,\"height\",\"1em\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-clock\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm8-7A8 8 0 1 1 0 8a8 8 0 0 1 16 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[10,0],[14,0,\"col-md-auto text-right col-filter\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-primary my-2\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-funnel card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-outline-secondary my-2\"],[14,\"disabled\",\"disabled\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-x card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\t\"],[46,[28,[37,2],null,null],null,null,null],[1,\"\\n\\n\\t\"],[10,0],[14,0,\"border border-dark rounded p-4 mb-4\"],[12],[1,\"\\n\\n\\t\\t\"],[10,\"h4\"],[12],[1,\"Дата встречи\"],[13],[1,\"\\n\\n\\t\\t\"],[10,0],[14,0,\"row h-100 justify-content-between mb-4\"],[12],[1,\"\\n\\n\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"datepicker datepicker-meeting date input-group p-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"input\"],[14,\"placeholder\",\"Дата...\"],[14,0,\"form-control\"],[14,1,\"reservationDate\"],[14,2,\"25\"],[14,\"disabled\",\"disabled\"],[14,4,\"text\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"input-group-append\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,1],[14,0,\"input-group-text px-4\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"width\",\"1em\"],[14,\"height\",\"1em\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-clock\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm8-7A8 8 0 1 1 0 8a8 8 0 0 1 16 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\n\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\",\"model\"],[\"btn btn-edit\",\"meetings.edit\",[33,3]]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-pencil card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[6,[39,0],null,[[\"class\",\"route\",\"model\"],[\"btn btn-edit\",\"meetings.edit\",[33,3]]],[[\"default\"],[[[[1,\"\\t\\t\\t\\t\"],[10,\"button\"],[14,0,\"btn btn-trash\"],[14,4,\"button\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-trash card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"d\",\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\"]],[]]]]],[1,\"\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\n\\t\\t\"],[10,\"h4\"],[12],[1,\"Список докладов\"],[13],[1,\"\\n\"],[42,[28,[37,5],[[28,[37,5],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\"],[1,[28,[35,6],null,[[\"id\",\"title\",\"author\",\"img\"],[[30,1,[\"id\"]],[30,1,[\"title\"]],[30,1,[\"author\"]],[30,1,[\"img\"]]]]]],[1,\"\\n\"]],[1]],null],[1,\"\\n\\t\\t\\n\\t\"],[13],[1,\"\\n\\n\\n\\n\\t\"],[10,\"nav\"],[14,\"aria-label\",\"Page navigation example\"],[12],[1,\"\\n\\t\\t\"],[10,\"ul\"],[14,0,\"pagination justify-content-end\"],[12],[1,\"\\n\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item disabled\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Previous\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"«\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"],[42,[28,[37,5],[[28,[37,5],[[33,7]],null]],null],null,[[[1,\"\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item page-link\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[6,[39,0],null,[[\"query\",\"route\"],[[28,[37,8],null,[[\"page\"],[[30,2]]]],\"meetings\"]],[[\"default\"],[[[[1,[30,2]]],[]]]]],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[2]],null],[1,\"\\t\\t\\t\"],[10,\"li\"],[14,0,\"page-item\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,3],[14,0,\"page-link\"],[14,6,\"#\"],[14,\"aria-label\",\"Next\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,1],[14,\"aria-hidden\",\"true\"],[12],[1,\"»\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\"],[13],[1,\"\\n\\t\"],[13],[1,\"\\n\\n\"],[13]],[\"meeting\",\"page\"],false,[\"link-to\",\"component\",\"-outlet\",\"id\",\"each\",\"-track-array\",\"meetings-item\",\"pages\",\"-hash\"]]",
     "moduleName": "juniormax/templates/meetings.hbs",
     "isStrictMode": false
   });
@@ -3070,9 +3333,43 @@
   _exports.default = void 0;
 
   var _default = (0, _templateFactory.createTemplateFactory)({
-    "id": "ttZY50yx",
-    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn btn-outline-primary\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Speaker:\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            Form\\n        \"],[13],[1,\"\\n        \"],[1,[28,[35,1],null,[[\"meeting\"],[[33,2]]]]],[1,\"\\n        \\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"meetings-form\",\"model\"]]",
+    "id": "Ni4qjosa",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn btn-outline-primary\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"New Meetings: \"],[1,[33,1,[\"title\"]]],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            Form\\n        \"],[13],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"meeting\",\"onSubmit\"],[[33,3],[28,[37,4],[[30,0],\"saveMeeting\"],null]]]]],[1,\"\\n        \\n    \"],[13],[1,\"\\n\\n\"],[13]],[],false,[\"link-to\",\"meeting\",\"meetings-form\",\"model\",\"action\"]]",
     "moduleName": "juniormax/templates/meetings/create.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/meetings/detail", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "XbDhjrCQ",
+    "block": "[[[10,0],[14,0,\"slide-out\"],[12],[1,\"\\n    \"],[10,0],[14,0,\"title\"],[12],[1,\"\\n        \"],[10,0],[14,0,\"slide-out-card\"],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn btn-outline-primary\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,[33,1,[\"title\"]]],[1,\" \"],[1,[33,1,[\"author\"]]],[13],[1,\"\\n            \"],[10,\"img\"],[15,\"src\",[33,1,[\"img\"]]],[14,0,\"card-img-top my-3\"],[14,\"alt\",\"Обложка автора\"],[12],[13],[1,\"\\n\"],[6,[39,0],null,[[\"class\",\"route\",\"model\"],[\"btn btn-outline-primary\",\"meetings.edit\",[33,1,[\"id\"]]]],[[\"default\"],[[[[1,\"            edit\\n\"]],[]]]]],[1,\"            \"],[10,\"button\"],[14,0,\"btn btn-outline-primary\"],[15,\"onclick\",[28,[37,2],[[30,0],\"deleteMeeting\",[30,0,[\"model\"]]],null]],[14,4,\"button\"],[12],[1,\"delete\"],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\"],[13]],[],false,[\"link-to\",\"model\",\"action\"]]",
+    "moduleName": "juniormax/templates/meetings/detail.hbs",
+    "isStrictMode": false
+  });
+
+  _exports.default = _default;
+});
+;define("juniormax/templates/meetings/edit", ["exports", "@ember/template-factory"], function (_exports, _templateFactory) {
+  "use strict";
+
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+
+  var _default = (0, _templateFactory.createTemplateFactory)({
+    "id": "RC04clCH",
+    "block": "[[[10,0],[12],[1,\"\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n\"],[6,[39,0],null,[[\"route\"],[\"meetings.index\"]],[[\"default\"],[[[[1,\"            \"],[10,\"button\"],[14,0,\"btn btn-outline-primary\"],[14,4,\"button\"],[12],[1,\"Back\"],[13],[1,\"\\n\"]],[]]]]],[1,\"        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[10,0],[12],[1,\"\\n            \"],[10,\"h3\"],[12],[1,\"Edit Speaker: \"],[1,[33,1,[\"title\"]]],[13],[1,\"\\n            \"],[10,\"img\"],[15,\"src\",[33,1,[\"img\"]]],[14,0,\"card-img-top\"],[14,\"alt\",\"Обложка автора\"],[12],[13],[1,\"\\n        \"],[13],[1,\"\\n    \"],[13],[1,\"\\n\\n    \"],[10,0],[12],[1,\"\\n        \"],[1,[28,[35,2],null,[[\"meeting\",\"onSubmit\"],[[33,1],[28,[37,3],[[30,0],\"saveMeeting\"],null]]]]],[1,\"\\n    \"],[13],[1,\"\\n    \\t\\t\"],[10,\"ul\"],[14,0,\"list-group\"],[12],[1,\"\\n\"],[42,[28,[37,5],[[28,[37,5],[[30,0,[\"model\"]]],null]],null],null,[[[1,\"\\t\\t\\t\"],[10,\"li\"],[14,0,\"list-group-item\"],[12],[1,\"\\n\\t\\t\\t\\t\"],[10,0],[14,0,\"row h-100 justify-content-between\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Спикер\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"img\"],[15,\"src\",[29,[[28,[37,6],[[30,1,[\"img\"]]],null]]]],[14,0,\"rounded w-100\"],[14,\"alt\",\"Спикер\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,6],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Книга\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,6],[[30,1,[\"title\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,6],[[30,1,[\"author\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"row align-items-center m-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-auto pl-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\tОценка:\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col p-0\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"progress\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"progress-bar\"],[14,\"role\",\"progressbar\"],[15,5,[29,[\"width: \",[28,[37,6],[[30,1,[\"progress\"]]],null],\";\"]]],[14,\"aria-valuenow\",\"75\"],[14,\"aria-valuemin\",\"0\"],[14,\"aria-valuemax\",\"100\"],[12],[1,[28,[35,6],[[30,1,[\"progress\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-6\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"text-center py-2\"],[12],[1,\"Отзыв\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,2],[12],[1,[28,[35,6],[[30,1,[\"review\"]]],null]],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[10,0],[14,0,\"col-md-2 text-center col-filter\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,\"h5\"],[14,0,\"py-2\"],[12],[1,\"Ссылки\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"#\"],[14,0,\"btn btn-video\"],[14,\"title\",\"Посмотреть запись доклада\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-camera-reels card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M0 8a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 7.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 16H2a2 2 0 0 1-2-2V8zm11.5 5.175l3.5 1.556V7.269l-3.5 1.556v4.35zM2 7a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H2z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M9 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[10,3],[14,6,\"#\"],[14,0,\"btn btn-present\"],[14,\"title\",\"Скачать презентацию\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[10,\"svg\"],[14,\"viewBox\",\"0 0 16 16\"],[14,0,\"bi bi-file-ppt card-button\"],[14,\"fill\",\"currentColor\"],[14,\"xmlns\",\"http://www.w3.org/2000/svg\",\"http://www.w3.org/2000/xmlns/\"],[12],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M6 4a.5.5 0 0 1 .5.5V12a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 6 4z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\\t\"],[10,\"path\"],[14,\"fill-rule\",\"evenodd\"],[14,\"d\",\"M8.5 5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-3 2a3 3 0 1 1 6 0 3 3 0 0 1-6 0z\"],[12],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\\t\"],[13],[1,\"\\n\\t\\t\\t\"],[13],[1,\"\\n\"]],[1]],null],[1,\"\\t\\t\"],[13],[1,\"\\n\\n\\n\"],[13]],[\"meeting\"],false,[\"link-to\",\"model\",\"meetings-form\",\"action\",\"each\",\"-track-array\",\"get-meetings\"]]",
+    "moduleName": "juniormax/templates/meetings/edit.hbs",
     "isStrictMode": false
   });
 
@@ -3238,7 +3535,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+414ef521"});
+            require("juniormax/app")["default"].create({"name":"juniormax","version":"0.0.0+8f063c2a"});
           }
         
 //# sourceMappingURL=juniormax.map

@@ -152,6 +152,44 @@ define("juniormax/tests/integration/components/meetings-form-test", ["@ember/tem
     });
   });
 });
+define("juniormax/tests/integration/components/meetings-item-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
+  "use strict";
+
+  (0, _qunit.module)('Integration | Component | meetings-item', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
+    (0, _qunit.test)('it renders', async function (assert) {
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.set('myAction', function(val) { ... });
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        <MeetingsItem />
+      */
+      {
+        "id": "edo6SaTh",
+        "block": "[[[8,[39,0],null,null,null]],[],false,[\"meetings-item\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText(''); // Template block usage:
+
+      await (0, _testHelpers.render)((0, _templateFactory.createTemplateFactory)(
+      /*
+        
+            <MeetingsItem>
+              template block text
+            </MeetingsItem>
+          
+      */
+      {
+        "id": "jrZnBqbN",
+        "block": "[[[1,\"\\n      \"],[8,[39,0],null,null,[[\"default\"],[[[[1,\"\\n        template block text\\n      \"]],[]]]]],[1,\"\\n    \"]],[],false,[\"meetings-item\"]]",
+        "moduleName": "(unknown template module)",
+        "isStrictMode": false
+      }));
+      assert.dom(this.element).hasText('template block text');
+    });
+  });
+});
 define("juniormax/tests/integration/components/rental-test", ["@ember/template-factory", "qunit", "ember-qunit", "@ember/test-helpers"], function (_templateFactory, _qunit, _emberQunit, _testHelpers) {
   "use strict";
 
@@ -396,6 +434,20 @@ define("juniormax/tests/test-data/server", [], function () {
 
 
   server.use(responseInterceptor);
+  server.use((request, response, next) => {
+    const author = Number(request.query.author);
+
+    if (request.method === 'GET' && request.path === '/books' && !Number.isNaN(author)) {
+      const books = router.db.get('books').filter(b => b.authorId === author).map(book => {
+        book.reviews = router.db.get('reviews').filter(r => r.bookId === book.id).value();
+        return book;
+      }).value();
+      response.json(books);
+    } else {
+      next();
+    }
+  });
+  server.use(router);
 });
 define("juniormax/tests/test-helper", ["juniormax/app", "juniormax/config/environment", "qunit", "@ember/test-helpers", "qunit-dom", "ember-qunit"], function (_app, _environment, QUnit, _testHelpers, _qunitDom, _emberQunit) {
   "use strict";
@@ -496,6 +548,42 @@ define("juniormax/tests/unit/controllers/meetings-test", ["qunit", "ember-qunit"
 
     (0, _qunit.test)('it exists', function (assert) {
       let controller = this.owner.lookup('controller:meetings');
+      assert.ok(controller);
+    });
+  });
+});
+define("juniormax/tests/unit/controllers/meetings/create-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | meetings/create', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:meetings/create');
+      assert.ok(controller);
+    });
+  });
+});
+define("juniormax/tests/unit/controllers/meetings/detail-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | meetings/detail', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:meetings/detail');
+      assert.ok(controller);
+    });
+  });
+});
+define("juniormax/tests/unit/controllers/meetings/edit-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Controller | meetings/edit', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // TODO: Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let controller = this.owner.lookup('controller:meetings/edit');
       assert.ok(controller);
     });
   });
@@ -708,6 +796,28 @@ define("juniormax/tests/unit/routes/meetings/create-test", ["qunit", "ember-quni
     });
   });
 });
+define("juniormax/tests/unit/routes/meetings/detail-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | meetings/detail', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:meetings/detail');
+      assert.ok(route);
+    });
+  });
+});
+define("juniormax/tests/unit/routes/meetings/edit-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Route | meetings/edit', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks);
+    (0, _qunit.test)('it exists', function (assert) {
+      let route = this.owner.lookup('route:meetings/edit');
+      assert.ok(route);
+    });
+  });
+});
 define("juniormax/tests/unit/routes/speakers-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
   "use strict";
 
@@ -796,6 +906,25 @@ define("juniormax/tests/unit/serializers/book-test", ["qunit", "ember-qunit"], f
     (0, _qunit.test)('it serializes records', function (assert) {
       let store = this.owner.lookup('service:store');
       let record = store.createRecord('book', {});
+      let serializedRecord = record.serialize();
+      assert.ok(serializedRecord);
+    });
+  });
+});
+define("juniormax/tests/unit/serializers/meetings-test", ["qunit", "ember-qunit"], function (_qunit, _emberQunit) {
+  "use strict";
+
+  (0, _qunit.module)('Unit | Serializer | meetings', function (hooks) {
+    (0, _emberQunit.setupTest)(hooks); // Replace this with your real tests.
+
+    (0, _qunit.test)('it exists', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let serializer = store.serializerFor('meetings');
+      assert.ok(serializer);
+    });
+    (0, _qunit.test)('it serializes records', function (assert) {
+      let store = this.owner.lookup('service:store');
+      let record = store.createRecord('meetings', {});
       let serializedRecord = record.serialize();
       assert.ok(serializedRecord);
     });

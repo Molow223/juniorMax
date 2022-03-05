@@ -3,7 +3,7 @@
     {
       "id": 1,
       "type": "speaker",
-      "firstName": "Roberto 23",
+      "firstName": "Roberto ",
       "lastName": "Martinu",
       "img": "/6.jpg"
     },
@@ -85,7 +85,7 @@
     {
       "id": 3,
       "title": "Про кубики ",
-      "author": "NameAuthor8",
+      "authorId": "1",
       "pages": "789",
       "img": "/3.jpg",
       "progress": "32%"
@@ -115,19 +115,11 @@
       "progress": "68%"
     },
     {
-      "title": "Frenk",
-      "author": "дэдл",
-      "pages": "230",
-      "img": "/5.jpg",
-      "progress": "52",
-      "id": 12
-    },
-    {
       "title": "kool",
       "author": "Maikle",
       "pages": "12",
       "img": "/4.jpg",
-      "progress": "13",
+      "progress": "13%",
       "id": 13
     },
     {
@@ -135,7 +127,7 @@
       "author": "Robertщ",
       "pages": "52",
       "img": "/5.jpg",
-      "progress": "23",
+      "progress": "23%",
       "id": 14
     },
     {
@@ -143,7 +135,7 @@
       "author": "Roberto",
       "pages": "25",
       "img": "/6.jpg",
-      "progress": "69",
+      "progress": "69%",
       "id": 15
     },
     {
@@ -151,50 +143,70 @@
       "author": "Roberto",
       "pages": "56",
       "img": "/4.jpg",
-      "progress": "36",
+      "progress": "36%",
       "id": 16
     },
     {
-      "title": "Garry Poter",
-      "author": "Robertfgncg",
-      "pages": "89",
+      "title": "cvnc",
+      "author": "Anton",
+      "pages": "236",
       "img": "/7.jpg",
-      "progress": "23",
+      "progress": "52%",
       "id": 17
+    },
+    {
+      "title": "cb",
+      "author": "fgdf",
+      "pages": "15",
+      "img": "/6.jpg",
+      "progress": "56%",
+      "id": 18
     }
   ],
   "meetings": [
     {
-      "id": 1,
-      "title": "Консервация",
-      "author": "NameAuthor1",
-      "img": "/1.jpg",
-      "progress": "75%",
-      "review": "Molestiae molestiae saepe commodi delectus possimus nobis et. Assumenda sunt blanditiis.  Pariatur et aut molestiae nihil. Blanditiis explicabo autem error. Qui aperiam sunt earum quod aut deserunt corporis accusamus. Quia numquam est magnam cumque."
-    },
-    {
-      "id": 2,
-      "title": "Чебурашка",
-      "author": "NameAuthor2",
-      "img": "/2.jpg",
-      "progress": "50%",
-      "review": "Sapiente possimus temporibus eligendi id ea voluptate sit. Qui dolore tempore assumenda est quis et ut ut. Fugit reiciendis harum. Iusto magni aut illo in nesciunt reprehenderit. Porro ut aliquam autem vel. Dolorum officiis nobis ducimus dolorem nulla laudantium deleniti mollitia recusandae."
-    },
-    {
+      "reservationDate": "24.10.2019",
       "id": 3,
-      "title": "Про кубики",
+      "title": "Про кубики ",
       "author": "NameAuthor3",
       "img": "/3.jpg",
       "progress": "32%",
       "review": "Eum non qui tempore. Omnis debitis ut tenetur vero esse quia. Animi eum non vel consectetur unde voluptas modi qui error."
     },
     {
+      "reservationDate": "26.10.2019",
       "id": 4,
       "title": "Чип и Дейл",
       "author": "NameAuthor4",
       "review": "147",
       "img": "/4.jpg",
       "progress": "68%"
+    },
+    {
+      "reservationDate": "26.10.2019",
+      "id": 5,
+      "title": "Про кубики",
+      "author": "NameAuthor3",
+      "img": "/8.jpg",
+      "progress": "32%",
+      "review": "Eum non qui tempore. Omnis debitis ut tenetur vero esse quia. Animi eum non vel consectetur unde voluptas modi qui error."
+    },
+    {
+      "reservationDate": "24.10.2019",
+      "id": 6,
+      "title": "Про кубики",
+      "author": "NameAuthor3",
+      "img": "/7.jpg",
+      "progress": "32%",
+      "review": "Eum non qui tempore. Omnis debitis ut tenetur vero esse quia. Animi eum non vel consectetur unde voluptas modi qui error."
+    },
+    {
+      "title": "hytg",
+      "author": "lol",
+      "img": "/6.jpg",
+      "progress": "52%",
+      "review": "NameAuthor8",
+      "id": 7
     }
   ]
 }

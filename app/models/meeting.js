@@ -6,8 +6,8 @@ export default DS.Model.extend({
   img: DS.attr('string'),
   progress: DS.attr('string'),
   review: DS.attr('string'),
+  //reservationDate: DS.attr('4.10.2019')
 
 
   //books: DS.hasMany('book'),
 });
-

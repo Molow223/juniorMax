@@ -5,14 +5,50 @@ import { A } from '@ember/array';
 export default Service.extend({
   init() {
     this._super(...arguments);
+    this.set('meetings', A());
     this.set('speakers', A());
     this.set('books', A());
   },
 
-  getMeetingsData() {
-    return fetch(`${ENV.backendURL}/meettings`).then((response) =>
-      response.json()
-    );
+  async getMeetingsData(search) {
+    let queryParams = '';
+    if (search) {
+      queryParams = `?q=${search}`;
+    }
+    let response = await fetch(`${ENV.backendURL}/meetings${queryParams}`);
+    let meetings = await response.json();
+    this.meetings.clear();
+    this.meetings.pushObject(meetings);
+    return this.meetings;
+  },
+
+  getMeetingData(id) {
+    return this.meetings.find((meeting) => meeting.id === parseInt(id));
+  },
+  deleteMeeting(meeting) {
+    this.meetings.removeObject(meeting);
+    return fetch(`${ENV.backendURL}/meetings/${meeting.id}`, {
+      method: 'DELETE',
+    });
+  },
+  async createMeeting(meeting) {
+    return await fetch(`${ENV.backendURL}/meetings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(meeting),
+    });
+  },
+  async updateMeeting(meeting) {
+    this.meetings.removeObject(meeting);
+    return await fetch(`${ENV.backendURL}/meetings/${meeting.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(meeting),
+    });
   },
 
   async getBooksData(search) {

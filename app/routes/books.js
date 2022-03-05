@@ -1,55 +1,48 @@
 import Route from '@ember/routing/route';
-import { inject as service } from '@ember/service';
+import RSVP from 'rsvp';
 import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
+
+import { PER_PAGE } from '../controllers/books';
 
 export default Route.extend({
   queryParams: {
     search: {
       refreshModel: true,
     },
+    page: {
+      refreshModel: true,
+    },
+    author: {
+      refreshModel: true,
+    },
   },
-  dataService: service('data'),
 
-  model({ search }) {
-    /*let promise = new Promise((resolve, reject) => {
-      later(async () => {
-        try {
-          let books = search
-            ? await this.dataService.getBooksData(search)
-            : await this.dataService.getBooksData();
-          resolve(books);
-        } catch (e) {
-          reject('Connection failed');
-        }
-      }, 1000);
-    })
-      .then((books) => {
-        this.set('controller.model', books);
-      })
-      .finally(() => {
-        if (promise === this.modelPromise) {
-          this.set('controller.isLoading', false);
-        }
-      });
-    this.set('modelPromise', promise);
-    return { isLoading: true };*/
-    return this.store.findAll('book');
+  model({ search, page, author }) {
+    const query = {
+      _page: page,
+      _limit: PER_PAGE,
+    };
+    if (search) {
+      query.q = search;
+    }
+    if (author) {
+      query.author = author;
+    }
+
+    return RSVP.hash({
+      authors: this.store.findAll('speaker'),
+      books: this.store.query('book', query),
+    });
   },
 
   setupController(controller, model) {
     this._super(...arguments);
-    /*if (this.modelPromise) {
-      controller.set('isLoading', true);
-    }*/
   },
 
   actions: {
-    refreshBooks() {
-      //this.refresh();
-    },
-    /*loading(transition, originRoute) {
+    loading(transition, originRoute) {
       return false;
-    },*/
+    },
   },
 });

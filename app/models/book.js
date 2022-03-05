@@ -6,6 +6,8 @@ export default DS.Model.extend({
   pages: DS.attr('string'),
   img: DS.attr('string'),
   progress: DS.attr('string'),
+  isbn: DS.attr('string'),
+  publishDate: DS.attr('date-string'),
 
   speaker: DS.belongsTo('speaker'),
 });

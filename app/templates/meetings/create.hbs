@@ -8,14 +8,14 @@
     </div>
     <div>
         <div>
-            <h3>New Speaker:</h3>
+            <h3>New Meetings: {{meeting.title}}</h3>
         </div>
     </div>
     <div>
         <div>
             Form
         </div>
-        {{meetings-form meeting=model}}
+        {{meetings-form meeting=model onSubmit=(action "saveMeeting")}}
         
     </div>
 
